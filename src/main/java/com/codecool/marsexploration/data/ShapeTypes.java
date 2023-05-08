@@ -1,6 +1,6 @@
 package com.codecool.marsexploration.data;
 
-public enum Shapes {
+public enum ShapeTypes {
     MOUNTAIN("^"),
     PIT("#"),
     MINERAL("*"),
@@ -9,7 +9,7 @@ public enum Shapes {
 
     private final String shape;
 
-    Shapes(String shape) {
+    ShapeTypes(String shape) {
         this.shape = shape;
     }
 
