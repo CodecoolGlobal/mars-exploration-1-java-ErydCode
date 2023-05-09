@@ -8,7 +8,7 @@ import java.util.List;
 public class TerrainValidator {
     private boolean isEmptySpace = true;
 
-    public List<Integer> getXY(int[][] planetTerrains, Area area) {
+    public List<Integer> getXY(String[][] planetTerrains, Area area) {
         int x;
         int y;
         isEmptySpace = false;
