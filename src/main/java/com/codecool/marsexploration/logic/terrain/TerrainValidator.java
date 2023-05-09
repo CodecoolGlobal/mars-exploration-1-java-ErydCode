@@ -12,7 +12,7 @@ public class TerrainValidator {
         int x;
         int y;
         isEmptySpace = false;
-        return new ArrayList<>(List.of(x,y));
+        return new ArrayList<>(List.of());
     }
 
     public boolean isEmptySpace(){
