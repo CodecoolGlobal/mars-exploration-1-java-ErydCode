@@ -13,7 +13,7 @@ public class AreasTypeProvider {
         List<Area> areas = new ArrayList<>();
         for (int i = 1; i <= amount; i++) {
             int randomNumber = random.nextInt(minSize, maxSize);
-            areas.add(new Area(name + randomNumber, randomNumber, symbol));
+            areas.add(new Area(i + ". " + name, randomNumber, symbol));
         }
         return areas.stream().sorted(Comparator.comparingInt(Area::size)).toList();
     }
