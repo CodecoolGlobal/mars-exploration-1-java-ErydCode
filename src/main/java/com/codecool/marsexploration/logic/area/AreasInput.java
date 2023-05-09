@@ -10,7 +10,7 @@ import java.util.Random;
 
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 
-public class AreasData {
+public class AreasInput {
     private final Input input;
     private final Display display;
     private final Random random;
@@ -18,7 +18,7 @@ public class AreasData {
     private final List<String> usedSymbols = new ArrayList<>();
     private String wantNewArea;
 
-    public AreasData(Input input, Display display, Random random) {
+    public AreasInput(Input input, Display display, Random random) {
         this.input = input;
         this.display = display;
         this.random = random;

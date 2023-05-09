@@ -13,13 +13,20 @@ public class TerrainPlacer {
         this.terrainProvider = terrainProvider;
     }
 
-    public void randomGenerated(Planet planet, int startX, int StartY) {
+    public void randomGenerated(Planet planet) {
+        //Map ToDo: make duple array
         int planetX[] = new int[planet.xyLength()];
         int planetY[] = new int[planet.xyLength()];
 
         int areaCounter = 0;
         while (areaCounter < planet.amountAreas()) {
-
+            //random pick form planet.areas -> return area(name, size, symbol)
+            int areaSize = 0;
+            while (areaSize < area.size()) {
+                //validator([][], areaSize) -> return x,y Coordinate
+                //printer -> print in x and y planet array symbol
+                areaSize++;
+            }
         }
         areaCounter++;
     }
