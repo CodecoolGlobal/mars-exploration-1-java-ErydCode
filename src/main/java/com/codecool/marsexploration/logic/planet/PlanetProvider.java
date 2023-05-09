@@ -23,11 +23,11 @@ public class PlanetProvider {
     }
 
     public Planet getPlanet() {
-        List<Area> allAreas = areas.getAreas(display, input, random);
         display.printTitle("Create your planet");
         String name = input.getUserInput("Please enter the name of the planet.");
         int xyLength = input.getNumericUserInput("Please enter length of the planet.");
         int amountAreas = input.getNumericUserInput("Please enter how many areas the planet have.");
+        List<Area> allAreas = areas.getAreas(display, input, random);
         return new Planet(name, xyLength, allAreas, amountAreas);
     }
 }
