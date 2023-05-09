@@ -15,6 +15,9 @@ public class Application {
         display.printTitle("Welcome to planet creator - simulate your planet");
         PlanetProvider planet = new PlanetProvider(display, input, random);
         Planet mars = planet.getPlanet();
+        display.printTitle(mars.name());
         System.out.println(mars);
+        display.printEndLines();
+
     }
 }
