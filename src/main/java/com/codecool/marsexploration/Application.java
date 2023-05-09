@@ -1,5 +1,6 @@
 package com.codecool.marsexploration;
 
+import com.codecool.marsexploration.data.Planet;
 import com.codecool.marsexploration.logic.planet.PlanetProvider;
 import com.codecool.marsexploration.ui.Display;
 import com.codecool.marsexploration.ui.Input;
@@ -13,6 +14,7 @@ public class Application {
         Random random = new Random();
         display.printTitle("Welcome to planet creator - simulate your planet");
         PlanetProvider planet = new PlanetProvider(display, input, random);
+        Planet mars = planet.getPlanet();
         System.out.println(planet);
     }
 }
