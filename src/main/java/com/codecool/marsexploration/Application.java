@@ -18,6 +18,5 @@ public class Application {
         display.printTitle(mars.name());
         System.out.println(mars);
         display.printEndLines();
-
     }
 }
