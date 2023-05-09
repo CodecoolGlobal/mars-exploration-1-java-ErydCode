@@ -1,7 +1,6 @@
 package com.codecool.marsexploration.logic.area;
 
 import com.codecool.marsexploration.data.Area;
-import com.codecool.marsexploration.data.TerrainTypes;
 import com.codecool.marsexploration.ui.Display;
 import com.codecool.marsexploration.ui.Input;
 
@@ -16,8 +15,8 @@ public class AreasData {
     private final Display display;
     private final Random random;
     private final AreasProvider areasProvider = new AreasProvider();
-    private String userStrInput;
-    private Integer userIntInput;
+    private final List<String> usedSymbols = new ArrayList<>();
+    private String wantNewArea;
 
     public AreasData(Input input, Display display, Random random) {
         this.input = input;
@@ -27,14 +26,20 @@ public class AreasData {
 
     public List<Area> getAreas() {
         List<Area> allAreas = new ArrayList<>();
-        display.printSubtitle("Create your areas\n" +
-                "You can quit with the command: \"quit\", \"finish\" or \"0\"");
-        while (!containsIgnoreCase("finish", userStrInput) || !containsIgnoreCase("quit", userStrInput) || 0 != userIntInput) {
+        display.printSubtitle("Create your areas");
+        while (!containsIgnoreCase("no", wantNewArea)) {
             String name = input.getUserInput("Please enter the area name. For example \"mountain\"");
-            userStrInput = name;
-            Integer amount = input.getNumericUserInput("Please enter the amount ")
-            List<Area> areas = areasProvider.getTerrain(name, 3, 10, 30, TerrainTypes.MOUNTAIN.getSymbol(), random);
+            Integer minSize = input.getNumericUserInput("Please enter the minimum size of this area.");
+            Integer maxSize = input.getNumericUserInput("Please enter the maximum size of this area.\n" +
+                    "It have to be bigger than " + minSize + ".");
+            Integer amount = input.getNumericUserInput("How many different sizes can this area have?");
+            String symbol = input.getUserInput("Please enter a symbol. For example \"^\"" +
+                    (usedSymbols.isEmpty() ? "" : "\nAlready used Symbols: " + usedSymbols));
+            usedSymbols.add(symbol);
+            List<Area> areas = areasProvider.getTerrain(name, amount, minSize, maxSize, symbol, random);
             allAreas.addAll(areas);
+            wantNewArea = input.getUserInput("You want to create a new Area?\n" +
+                    "Pleaser enter the command \"yes\"/\"y\" or \"no\"/\"n\"");
         }
         System.out.println(allAreas);
         return allAreas;

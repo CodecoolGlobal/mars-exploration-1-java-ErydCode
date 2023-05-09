@@ -32,6 +32,10 @@ public class Display {
         System.out.println(message);
     }
 
+    public void inputMessage() {
+        System.out.print("Your input is: ");
+    }
+
     public void printTitle(String title) {
         System.out.println();
         String fillWithSpace = " ".repeat((displayLength - title.length()) / 2);

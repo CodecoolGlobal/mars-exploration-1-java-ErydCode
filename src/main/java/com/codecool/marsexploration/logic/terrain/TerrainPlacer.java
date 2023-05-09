@@ -1,10 +1,7 @@
 package com.codecool.marsexploration.logic.terrain;
 
 import com.codecool.marsexploration.data.Planet;
-import com.codecool.marsexploration.data.Area;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 public class TerrainPlacer {
@@ -22,12 +19,8 @@ public class TerrainPlacer {
 
         int areaCounter = 0;
         while (areaCounter < planet.amountAreas()) {
-            int randomArea = random.nextInt(allAreas.size());
-            int randomAreaSize = allAreas.get(randomArea).size();
-            if (true) {  //Missing boolean Validator!
 
-            }
-            areaCounter++;
         }
+        areaCounter++;
     }
 }
