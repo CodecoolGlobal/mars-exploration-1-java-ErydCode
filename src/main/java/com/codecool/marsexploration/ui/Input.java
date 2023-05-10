@@ -36,8 +36,8 @@ public class Input {
     }
 
     public int[] getRGB() {
-        display.printSubtitle("Please enter in the next inputs one RGB Color.\n" +
-                "https://htmlcolorcodes.com");
+        display.printSubtitle("Please enter in the next inputs one RGB Color.");
+        display.message("https://htmlcolorcodes.com");
         int[] rgb = new int[3];
         getColorValue("Red", rgb, 0);
         getColorValue("Green", rgb, 1);
