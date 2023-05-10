@@ -29,7 +29,8 @@ public class AreasProvider {
             String symbol = input.getUserInput("Please enter a symbol. For example \"^\"" +
                     (usedSymbols.isEmpty() ? "" : "\nAlready used Symbols: " + usedSymbols));
             usedSymbols.add(symbol);
-            List<Area> areas = areasTypeProvider.getTerrain(name, amount, minSize, maxSize, symbol, random);
+            int[] rgb = input.getRGB();
+            List<Area> areas = areasTypeProvider.getTerrain(name, amount, minSize, maxSize, symbol, rgb, random);
             allAreas.addAll(areas);
             wantNewArea = input.getUserInput("You want to create a new Area?\n" +
                     "Pleaser enter the command \"yes\"/\"y\" or \"no\"/\"n\"");

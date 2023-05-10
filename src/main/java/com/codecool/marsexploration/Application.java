@@ -16,7 +16,7 @@ public class Application {
         PlanetProvider planet = new PlanetProvider(display, input, random);
         Planet mars = planet.getPlanet();
         display.printTitle(mars.name());
-        System.out.println(mars);
+        System.out.println("RAW Data from " + mars.name() + ": " + mars);
         display.printEndLines();
     }
 }

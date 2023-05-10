@@ -10,7 +10,6 @@ import java.util.Random;
 public class TerrainProvider {
     private final Random random;
     private final TerrainValidator terrainValidator = new TerrainValidator();
-    private final TerrainPlacer terrainPlacer = new TerrainPlacer();
 
     public TerrainProvider(Random random) {
         this.random = random;
