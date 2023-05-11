@@ -12,14 +12,21 @@ import java.util.stream.Collectors;
 
 public class ResourcePlacer {
     public String[][] placeInTerrain(String[][] planetTerrains, Planet planet, Random random, Display display) {
+        String[][] finalTerrain = planetTerrains;
+        System.out.println(Arrays.deepToString(finalTerrain));
+        display.printEndLines();
+
         //ToDo Slap
         Map<String, Integer> mapOfAreaSymbolAndAmount = planet.resources().stream()
                 .flatMap(resource -> planet.areas().stream()
                         .filter(area -> resource.preferences().equals(area.symbol()))
-                        .flatMap(area -> Arrays.stream(planetTerrains)
+                        .flatMap(area -> Arrays.stream(finalTerrain)
                                 .flatMap(Arrays::stream)
                                 .filter(terrain -> terrain.equals(area.symbol()))))
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.summingInt(e -> 1)));
+        System.out.println("\nMap of Area: " + mapOfAreaSymbolAndAmount);
+        System.out.println("Size of Map of Area: " + mapOfAreaSymbolAndAmount.size());
+        display.printEndLines();
 
         //ToDo Slap
         Map<String, Integer> mapOfResourcesAndAmount = new HashMap<>();
@@ -48,29 +55,35 @@ public class ResourcePlacer {
             }
             mapOfResourcesAndAmount.put(actualResourceSymbol, resourceAmount);
         }
+
+
         int counterResource = 0;
         while (counterResource < mapOfResourcesAndAmount.size()) {
             int counterAmountOfResource = 0;
-            String actualKeyOfResource = mapOfResourcesAndAmount.keySet().toArray()[counterAmountOfResource].toString();
+            String actualKeyOfResource = mapOfResourcesAndAmount.keySet().toArray()[counterResource].toString();
             while (counterAmountOfResource < mapOfResourcesAndAmount.get(actualKeyOfResource)) {
-                int randomY = random.nextInt(planetTerrains.length);
-                int randomX = random.nextInt(planetTerrains[0].length);
+                int randomY = random.nextInt(finalTerrain.length);
+                int randomX = random.nextInt(finalTerrain.length);
                 String actualKeyOfArea = mapOfAreaSymbolAndAmount.keySet().toArray()[counterResource].toString();
-                while (!planetTerrains[randomY][randomX].equals(actualKeyOfArea)) {
-                    randomY = random.nextInt(planetTerrains.length);
-                    randomX = random.nextInt(planetTerrains[0].length);
+                while (!finalTerrain[randomY][randomX].equals(actualKeyOfArea)) {
+                    randomY = random.nextInt(finalTerrain.length);
+                    randomX = random.nextInt(finalTerrain.length);
                 }
+                System.out.println("Map of Resource: " + mapOfResourcesAndAmount);
+                System.out.println("Size of Map of Resource: " + mapOfResourcesAndAmount.size());
+                display.printEndLines();
 
                 //ToDo Slap
-                System.out.println("\nRandomY: " + randomY);
-                System.out.println("RandomX: " + randomX);
-                String actualTerrain = planetTerrains[randomY][randomX];
-                System.out.println("Actual Terrain: " + actualTerrain);
-                System.out.println("Actual Area Symbol: " + actualKeyOfArea);
+                System.out.println("\nRandomY to find empty space Start at Area: " + randomY);
+                System.out.println("RandomX  to find empty space Start at Area: " + randomX);
+                String actualTerrain = finalTerrain[randomY][randomX];
                 while (actualTerrain.equals(actualKeyOfArea) &&
-                        !actualTerrain.equals("")) {
+                        !actualTerrain.equals(" ")) {
+                    System.out.println("Actual Terrain searching: " + actualTerrain);
+                    System.out.println("Actual Area Symbol to check while searching: " + actualKeyOfArea);
                     int randomPlacer = random.nextInt(1, 4);
-                    actualTerrain = planetTerrains[randomY][randomX];
+                    System.out.println("randomPlacer to find empty place beside preference: " + randomPlacer);
+                    actualTerrain = finalTerrain[randomY][randomX];
                     switch (randomPlacer) {
                         case 1 -> {
                             if (randomX < planet.xyLength()) {
@@ -94,16 +107,16 @@ public class ResourcePlacer {
                         }
                     }
                 }
-                System.out.println("\nTerrainXY: " + planetTerrains[randomY][randomX]);
-                System.out.println(planetTerrains[randomY][randomX].equals(""));
-                if (planetTerrains[randomY][randomX].equals("")) {
-                    System.out.println("Resource: " + actualKeyOfResource);
-                    planetTerrains[randomY][randomX] = actualKeyOfResource;
+                System.out.println("\nTerrainXY to Print: " + planetTerrains[randomY][randomX]);
+                System.out.println("Is place empty: " + planetTerrains[randomY][randomX].equals(" "));
+                if (planetTerrains[randomY][randomX].equals(" ")) {
+                    System.out.println("Resource To Print: " + actualKeyOfResource);
+                    finalTerrain[randomY][randomX] = actualKeyOfResource;
                 }
                 counterAmountOfResource++;
             }
             counterResource++;
         }
-        return planetTerrains;
+        return finalTerrain;
     }
 }

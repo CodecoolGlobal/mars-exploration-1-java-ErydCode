@@ -57,8 +57,8 @@ public class Application {
             Planet exploredExodusPlanet = new Planet("CodeCool", 200, allAreas, 20, allResource);
             //terrainProvider.randomGenerated(exploredExodusPlanet, display);
             String[][]randomExodusPlanet = resourcePlacer.placeInTerrain(fake2DArray.getFakeMap(), exploredExodusPlanet, random, display);
-            for (int i = 0; i < randomExodusPlanet.length; i++){
-                System.out.println(Arrays.toString(randomExodusPlanet[i]));
+            for (String[] strings : randomExodusPlanet) {
+                System.out.println(Arrays.toString(strings));
             }
         }
         display.printEndLines();
