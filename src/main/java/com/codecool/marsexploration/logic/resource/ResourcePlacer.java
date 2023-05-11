@@ -1,43 +1,71 @@
 package com.codecool.marsexploration.logic.resource;
 
 import com.codecool.marsexploration.data.Planet;
+import com.codecool.marsexploration.ui.Display;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ResourcePlacer {
-    public void placeInTerrain(String[][] planetTerrains, Planet planet, Random random) {
-        //ToDo: generate Random amount of each resource depends of Amount of the dependency Symbol
-        Map<String, Integer> mapOfSymbolAndTotalAmountOfOneValidArea = planet.allResource().stream()
+    public void placeInTerrain(String[][] planetTerrains, Planet planet, Random random, Display display) {
+        //ToDo Slap
+        Map<String, Integer> mapOfAreaSymbolAndAmount = planet.resources().stream()
                 .flatMap(resource -> planet.areas().stream()
                         .filter(area -> resource.preferences().equals(area.symbol()))
                         .flatMap(area -> Arrays.stream(planetTerrains)
                                 .flatMap(Arrays::stream)
                                 .filter(terrain -> terrain.equals(area.symbol()))))
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.summingInt(e -> 1)));
-        System.out.println(mapOfSymbolAndTotalAmountOfOneValidArea);
-        System.out.println(mapOfSymbolAndTotalAmountOfOneValidArea.size());
+        System.out.println(mapOfAreaSymbolAndAmount);
+        System.out.println(mapOfAreaSymbolAndAmount.size());
 
-
-        int counterResourceType = 0;
-        while (counterResourceType < mapOfSymbolAndTotalAmountOfOneValidArea.size()) {
-            int counterActualResource = 0;
-            //ToDo replace 5 with an Array with the same size of Resource Symbols with a random amount. !!Same Order Like Map preferred Symbol
-            while (counterActualResource < 5) {
+        //ToDo Slap
+        Map<String, Integer> mapOfResourcesAndAmount = new HashMap<>();
+        for (int i = 0; i < planet.resources().size(); i++) {
+            String actualAreaSymbol = mapOfAreaSymbolAndAmount.keySet().toArray()[i].toString();
+            int totalAmountOfArea = mapOfResourcesAndAmount.get(actualAreaSymbol);
+            String actualResourceSymbol = planet.resources().get(i).symbol();
+            int resourceAmount = 0;
+            if (actualResourceSymbol.equals(actualAreaSymbol)) {
+                int minimumDivisor = 4;
+                if (minimumDivisor < totalAmountOfArea) {
+                    resourceAmount = totalAmountOfArea / random.nextInt(4, totalAmountOfArea);
+                } else {
+                    while (minimumDivisor > 0) {
+                        minimumDivisor--;
+                    }
+                    display.errorMessage("Your Size of this Area is 0! Please make a new Planet with minim Area Size of 1");
+                }
+            } else {
+                int areasAmount = planet.amountAreas();
+                if (areasAmount > 0) {
+                    resourceAmount = planet.amountAreas() / random.nextInt(1, planet.amountAreas());
+                } else {
+                    display.errorMessage("Your Planet hase no Areas! Please create a new Planet with minim 1 Area");
+                }
+            }
+            mapOfResourcesAndAmount.put(actualAreaSymbol, resourceAmount);
+        }
+        int counterResource = 0;
+        while (counterResource < mapOfResourcesAndAmount.size()) {
+            int counterAmountOfResource = 0;
+            String actualKeyOfResource = mapOfResourcesAndAmount.keySet().toArray()[counterAmountOfResource].toString();
+            while (counterAmountOfResource < mapOfResourcesAndAmount.get(actualKeyOfResource)) {
                 int randomY = random.nextInt(planet.xyLength());
                 int randomX = random.nextInt(planet.xyLength());
-                //!!!!ToDo actualSymbol have to be Symbol of Resource not of Area!!!!!
-                String actualSymbol = mapOfSymbolAndTotalAmountOfOneValidArea.keySet().toArray()[counterResourceType].toString();
-                while (!planetTerrains[randomY][randomX].equals(actualSymbol)) {
+                String actualKeyOfArea = mapOfAreaSymbolAndAmount.keySet().toArray()[counterResource].toString();
+                while (!planetTerrains[randomY][randomX].equals(actualKeyOfArea)) {
                     randomY = random.nextInt(planet.xyLength());
                     randomX = random.nextInt(planet.xyLength());
                 }
-                //ToDo (Just if is enough time) Think about a better idea because with this switch it can be happen that x,y is jumping forward and backward = loop between 2 Coordinates
-                while (planetTerrains[randomY][randomX].equals(actualSymbol)) {
-                    int randomPlacer = random.nextInt(1, 4);
+
+                //ToDo Slap
+                int randomPlacer = random.nextInt(1, 4);
+                while (planetTerrains[randomY][randomX].equals(actualKeyOfArea)) {
                     switch (randomPlacer) {
                         case 1 -> {
                             if (randomX < planet.xyLength()) {
@@ -62,11 +90,11 @@ public class ResourcePlacer {
                     }
                 }
                 if (planetTerrains[randomY][randomX].isEmpty()) {
-                    planetTerrains[randomY][randomX] = actualSymbol;
+                    planetTerrains[randomY][randomX] = actualKeyOfResource;
                 }
-                counterActualResource++;
+                counterAmountOfResource++;
             }
-            counterResourceType++;
+            counterResource++;
         }
     }
 }
