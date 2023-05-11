@@ -3,7 +3,6 @@ package com.codecool.marsexploration;
 import com.codecool.marsexploration.data.Area;
 import com.codecool.marsexploration.data.Planet;
 import com.codecool.marsexploration.data.Resource;
-import com.codecool.marsexploration.logic.area.AreasProvider;
 import com.codecool.marsexploration.logic.area.AreasTypeProvider;
 import com.codecool.marsexploration.logic.planet.PlanetProvider;
 import com.codecool.marsexploration.logic.resource.ResourcePlacer;
@@ -54,7 +53,7 @@ public class Application {
             Resource presetWater = new Resource("Water", "≈", "#", rgbWater);
             allResource.add(presetMineral);
             allResource.add(presetWater);
-            Planet exploredExodusPlanet = new Planet("CodeCool", 200, allAreas, 20, allResource);
+            Planet exploredExodusPlanet = new Planet("CodeCool", 20, allAreas, 8, allResource);
             //terrainProvider.randomGenerated(exploredExodusPlanet, display);
             String[][]randomExodusPlanet = resourcePlacer.placeInTerrain(fake2DArray.getFakeMap(), exploredExodusPlanet, random, display);
             for (String[] strings : randomExodusPlanet) {
