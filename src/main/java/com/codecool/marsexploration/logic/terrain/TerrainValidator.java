@@ -9,10 +9,10 @@ public class TerrainValidator {
     private boolean isEmptySpace = true;
 
     public List<Integer> getXY(String[][] planetTerrains, Area area) {
-        int x;
-        int y;
+        int x =0;
+        int y=0;
         isEmptySpace = false;
-        return new ArrayList<>(List.of());
+        return new ArrayList<>(List.of(x,y));
     }
 
     public boolean isEmptySpace(){
