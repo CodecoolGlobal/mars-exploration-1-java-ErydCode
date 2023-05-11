@@ -15,8 +15,8 @@ public class TerrainProvider {
         this.random = random;
     }
 
-    public void randomGenerated(Planet planet, Display display) {
-                        //[y][x]
+    public String[][] randomGenerated(Planet planet, Display display) {
+            //[y][x]
         String[][] planetTerrains = new String[planet.xyLength()][planet.xyLength()];
 
         while (terrainValidator.isEmptySpace()) {
@@ -35,5 +35,6 @@ public class TerrainProvider {
             }
         }
         display.errorMessage("The planet does not have enough space for all areas, please reduce your number of areas");
+        return planetTerrains;
     }
 }

@@ -14,6 +14,8 @@ import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 
 public class ResourceProvider {
     private String wantNewResource;
+    private final List<String> usedSymbols = new ArrayList<>();
+
 
     public List<Resource> getResource(Display display, Input input, List<Area> allAreas) {
         List<Resource> allResource = new ArrayList<>();
@@ -21,7 +23,9 @@ public class ResourceProvider {
         display.printSubtitle("Create your resources");
         while (!containsIgnoreCase("no", wantNewResource)) {
             String name = input.getUserInput("Please enter the resource name. For example \"mineral\".");
-            String symbol = input.getUserInput("Please enter a symbol for this resource. For example \"≈\".");
+            String symbol = input.getUserInput("Please enter a symbol for this resource. For example \"≈\"." +
+                    (usedSymbols.isEmpty() ? "" : "\nAlready used Symbols: " + usedSymbols));
+            usedSymbols.add(symbol);
             String preferences = input.getUserInput("This resource can be found at which area.\n" +
                     "The Planet have this Type of area: " + areaSymbols);
             int[] rgb = input.getRGB();

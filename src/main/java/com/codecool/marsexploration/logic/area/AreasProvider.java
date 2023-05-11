@@ -13,7 +13,6 @@ import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 public class AreasProvider {
     private final AreasTypeProvider areasTypeProvider = new AreasTypeProvider();
     private final List<String> usedSymbols = new ArrayList<>();
-    private final List<String> usedAreaNames = new ArrayList<>();
     private String wantNewArea;
 
     public List<Area> getAreas(Display display, Input input, Random random) {
@@ -21,7 +20,6 @@ public class AreasProvider {
         display.printSubtitle("Create your areas");
         while (!containsIgnoreCase("no", wantNewArea)) {
             String name = input.getUserInput("Please enter the area name. For example \"mountain\"");
-            usedAreaNames.add(name);
             Integer minSize = input.getNumericUserInput("Please enter the minimum size of this area.");
             Integer maxSize = input.getNumericUserInput("Please enter the maximum size of this area.\n" +
                     "It have to be bigger than " + minSize + ".");
@@ -36,10 +34,5 @@ public class AreasProvider {
                     "Pleaser enter the command \"yes\"/\"y\" or \"no\"/\"n\"");
         }
         return allAreas;
-    }
-
-    //Maybe later Use for code refactor. Using in ResourceProvider
-    public List<String> getUsedAreaNames() {
-        return usedAreaNames;
     }
 }
