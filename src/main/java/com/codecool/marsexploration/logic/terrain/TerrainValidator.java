@@ -21,44 +21,49 @@ public class TerrainValidator {
         actualPossibleCoordinates.put(startY, startX);
         areaTerrainsCoordinatesMap.put(0, actualPossibleCoordinates);
         System.out.println(areaTerrainsCoordinatesMap);
-        int nextY = -1;
-        int nextX = -1;
+        int nextY = startY;
+        int nextX = startX;
         boolean isPossibleToProvideArea = true;
+
         while (isPossibleToProvideArea) {
             possibleNextTerrainsCoordinatesMap.clear();
             validNextTerrainsCoordinatesMap.clear();
             actualPossibleCoordinates.clear();
+
             int areaSizeCounter = 1;
             while (areaSizeCounter < area.size() + 1) {
-                if (nextY == -1) {
+                getPossibleNextTerrainsCoordinatesMap(maxPlanetLength, nextY, nextX);
+                System.out.println(possibleNextTerrainsCoordinatesMap);
+                getValidNextTerrainsCoordinatesMap(planetTerrains);
+                System.out.println(validNextTerrainsCoordinatesMap);
+                System.out.println(validNextTerrainsCoordinatesMap.isEmpty());
+                int indexLastSteps = 0;
+                while (validNextTerrainsCoordinatesMap.isEmpty()) {
+                    possibleNextTerrainsCoordinatesMap.clear();
+                    validNextTerrainsCoordinatesMap.clear();
+                    int pastSteps = (int) areaTerrainsCoordinatesMap.keySet().toArray()[indexLastSteps];
+                    Map<Integer, Integer> pastCoordinate = areaTerrainsCoordinatesMap.get(pastSteps);
+                    for (Map.Entry<Integer, Integer> lastStepSet : pastCoordinate.entrySet()) {
+                        nextY = lastStepSet.getKey();
+                        nextX = lastStepSet.getValue();
+                    }
                     getPossibleNextTerrainsCoordinatesMap(maxPlanetLength, nextY, nextX);
                     getValidNextTerrainsCoordinatesMap(planetTerrains);
+                    System.out.println(validNextTerrainsCoordinatesMap);
                 }
-                if (!areaTerrainsCoordinatesMap.isEmpty() && validNextTerrainsCoordinatesMap.isEmpty()) {
-                    int bestPossibility = 8;
-                    while (bestPossibility >= 0) {
-                        for (Map.Entry<Integer, Map<Integer, Integer>> tryBestOldXY : areaTerrainsCoordinatesMap.entrySet()) {
-                            if (tryBestOldXY.getKey() == bestPossibility) {
-                                for (Map.Entry<Integer, Integer> coordinate : tryBestOldXY.getValue().entrySet()) {
-                                    nextY = coordinate.getKey();
-                                    nextX = coordinate.getValue();
-                                }
-                            }
-                        }
-                        bestPossibility--;
-                    }
-                    isPossibleToProvideArea = false;
-                }
-                int randomNextCoordinate = random.nextInt(validNextTerrainsCoordinatesMap.size());
-                nextY = (int) validNextTerrainsCoordinatesMap.keySet().toArray()[randomNextCoordinate];
-                nextX = validNextTerrainsCoordinatesMap.get(nextY);
-                areaTerrainsCoordinatesMap.put(nextY, nextX);
-                actualPossibleCoordinates.put(nextY, nextX);
-                steps.put(validNextTerrainsCoordinatesMap.size(), stepCoordinate);
-                possibleNextTerrainsCoordinatesMap.clear();
-                validNextTerrainsCoordinatesMap.clear();
-                areaSizeCounter++;
+                isPossibleToProvideArea = false;
             }
+            /*
+            int randomNextCoordinate = random.nextInt(validNextTerrainsCoordinatesMap.size());
+            nextY = (int) validNextTerrainsCoordinatesMap.keySet().toArray()[randomNextCoordinate];
+            nextX = validNextTerrainsCoordinatesMap.get(nextY);
+            areaTerrainsCoordinatesMap.put(nextY, nextX);
+            actualPossibleCoordinates.put(nextY, nextX);
+            steps.put(validNextTerrainsCoordinatesMap.size(), stepCoordinate);
+            possibleNextTerrainsCoordinatesMap.clear();
+            validNextTerrainsCoordinatesMap.clear();
+            areaSizeCounter++;
+            */
         }
         return areaTerrainsCoordinatesMap;
     }
