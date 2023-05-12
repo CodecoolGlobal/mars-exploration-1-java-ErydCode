@@ -5,7 +5,7 @@ import com.codecool.marsexploration.data.Planet;
 import com.codecool.marsexploration.logic.resource.ResourcePlacer;
 import com.codecool.marsexploration.ui.Display;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class TerrainProvider {
@@ -19,25 +19,24 @@ public class TerrainProvider {
     }
 
     public String[][] randomGenerated(Planet planet, Display display) {
-        //[y][x]
         String[][] planetTerrains = new String[planet.xyLength()][planet.xyLength()];
-        while (terrainValidator.isEmptySpace()) {
-            int areaCounter = 0;
-            while (areaCounter < planet.amountAreas()) {
-                Area area = planet.areas().get(random.nextInt(planet.areas().size()));
-                int areaSize = 0;
-                while (areaSize < area.size()) {
-                    List<Integer> placeForSymbolXY = terrainValidator.getXY(planetTerrains, area);
-                    int x = placeForSymbolXY.get(0);
-                    int y = placeForSymbolXY.get(1);
-                    planetTerrains[y][x] = area.symbol();
-                    areaSize++;
-                }
-                areaCounter++;
+        for (int y = 0; y < planet.xyLength(); y++) {
+            for (int x = 0; x < planet.xyLength(); x++) {
+                planetTerrains[y][x] = " ";
             }
-            resourcePlacer.placeInTerrain(planetTerrains, planet, random, display);
         }
-        display.errorMessage("The planet does not have enough space for all areas, please reduce your number of areas");
-        return planetTerrains;
+        for (int i = 0; i < planet.areas().size(); i++) {
+            Area actualArea = planet.areas().get(i);
+            Map<Integer, Integer> actualAreaXYs = terrainValidator.getXY(planetTerrains, actualArea, random, display);
+            System.out.println("TERRAINPROVIDER actualAreaXYs: " + actualAreaXYs);
+            if (!actualAreaXYs.isEmpty()) {
+                for (Map.Entry<Integer, Integer> set : actualAreaXYs.entrySet()) {
+                    planetTerrains[set.getKey()][set.getValue()] = actualArea.symbol();
+                }
+            } else {
+                display.errorMessage("The planet does not have enough space for all areas, please reduce your number of areas");
+            }
+        }
+        return resourcePlacer.placeInTerrain(planetTerrains, planet, random, display);
     }
 }

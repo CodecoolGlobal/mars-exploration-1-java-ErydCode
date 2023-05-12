@@ -36,13 +36,16 @@ public class Application {
         if (userChoice == 1) {
             Planet createdPlanet = planet.getPlanet();
             display.printTitle(createdPlanet.name());
-            System.out.println("RAW Data from " + createdPlanet.name() + ": " + createdPlanet);
+            String[][] userPlanet = terrainProvider.randomGenerated(createdPlanet, display);
+            for (String[] strings : userPlanet) {
+                System.out.println(Arrays.toString(strings));
+            }
         }
         if (userChoice == 2) {
             int[] rgbMountains = new int[]{102, 51, 0};
             List<Area> presetMountain = areasTypeProvider.getTerrain("Mountain", 4, 10, 40, "^", rgbMountains, random);
             int[] rgbPits = new int[]{32, 32, 32};
-            List<Area> presetPits = areasTypeProvider.getTerrain("Mountain", 4, 10, 40, "#", rgbPits, random);
+            List<Area> presetPits = areasTypeProvider.getTerrain("Pits", 2, 5, 15, "#", rgbPits, random);
             List<Area> allAreas = new ArrayList<>();
             allAreas.addAll(presetMountain);
             allAreas.addAll(presetPits);
@@ -53,13 +56,13 @@ public class Application {
             Resource presetWater = new Resource("Water", "≈", "#", rgbWater);
             allResource.add(presetMineral);
             allResource.add(presetWater);
-            Planet exploredExodusPlanet = new Planet("CodeCool", 20, allAreas, 8, allResource);
-            //terrainProvider.randomGenerated(exploredExodusPlanet, display);
-            String[][]randomExodusPlanet = resourcePlacer.placeInTerrain(fake2DArray.getFakeMap(), exploredExodusPlanet, random, display);
+            Planet exploredExodusPlanet = new Planet("CodeCool", 500, allAreas, 8, allResource);
+            String[][] randomExodusPlanet =
+                    //terrainProvider.randomGenerated(exploredExodusPlanet, display);
+                    resourcePlacer.placeInTerrain(fake2DArray.getFakeMap(), exploredExodusPlanet, random, display);
             for (String[] strings : randomExodusPlanet) {
                 System.out.println(Arrays.toString(strings));
             }
         }
-        display.printEndLines();
     }
 }
