@@ -3,12 +3,15 @@ package com.codecool.marsexploration;
 import com.codecool.marsexploration.data.Area;
 import com.codecool.marsexploration.data.Planet;
 import com.codecool.marsexploration.data.Resource;
+import com.codecool.marsexploration.data.SymbolColorProvider;
+import com.codecool.marsexploration.logic.area.AreasProvider;
 import com.codecool.marsexploration.logic.area.AreasTypeProvider;
 import com.codecool.marsexploration.logic.planet.PlanetProvider;
 import com.codecool.marsexploration.logic.resource.ResourcePlacer;
 import com.codecool.marsexploration.logic.terrain.TerrainProvider;
 import com.codecool.marsexploration.ui.Display;
 import com.codecool.marsexploration.ui.Input;
+import com.codecool.marsexploration.ui.MapImageGenerator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,6 +20,8 @@ import java.util.Random;
 
 public class Application {
     public static void main(String[] args) {
+        MapImageGenerator mapImageGenerator = new MapImageGenerator();
+
         Display display = new Display();
         Input input = new Input(display);
         Random random = new Random();
@@ -25,6 +30,7 @@ public class Application {
         TerrainProvider terrainProvider = new TerrainProvider(random);
         Fake2DArray fake2DArray = new Fake2DArray();
         ResourcePlacer resourcePlacer = new ResourcePlacer();
+//        List<SymbolColorProvider> entities = new ArrayList<>();
 
         display.printTitle("Welcome to planet creator - simulate your planet");
         display.printSubtitle("You want create your own Planet or use an already explored Exodus Planet?");
@@ -45,10 +51,12 @@ public class Application {
             int[] rgbMountains = new int[]{102, 51, 0};
             List<Area> presetMountain = areasTypeProvider.getTerrain("Mountain", 4, 10, 40, "^", rgbMountains, random);
             int[] rgbPits = new int[]{32, 32, 32};
-            List<Area> presetPits = areasTypeProvider.getTerrain("Pits", 2, 5, 15, "#", rgbPits, random);
+            List<Area> presetPits = areasTypeProvider.getTerrain("Mountain", 4, 10, 40, "#", rgbPits, random);
             List<Area> allAreas = new ArrayList<>();
             allAreas.addAll(presetMountain);
             allAreas.addAll(presetPits);
+//            entities.addAll(presetMountain);
+//            entities.addAll(presetPits);
             List<Resource> allResource = new ArrayList<>();
             int[] rgbMineral = new int[]{160, 160, 160};
             Resource presetMineral = new Resource("Mineral", "*", "^", rgbMineral);
@@ -56,13 +64,17 @@ public class Application {
             Resource presetWater = new Resource("Water", "≈", "#", rgbWater);
             allResource.add(presetMineral);
             allResource.add(presetWater);
+//            entities.add(presetMineral);
+//            entities.add(presetWater);
             Planet exploredExodusPlanet = new Planet("CodeCool", 50, allAreas, 8, allResource);
             String[][] randomExodusPlanet =
                     terrainProvider.randomGenerated(exploredExodusPlanet, display);
                     //resourcePlacer.placeInTerrain(fake2DArray.getFakeMap(), exploredExodusPlanet, random, display);
             for (String[] strings : randomExodusPlanet) {
                 System.out.println(Arrays.toString(strings));
+//                 mapImageGenerator.generateImage(exploredExodusPlanet, ,randomExodusPlanet);
             }
         }
+        display.printEndLines();
     }
 }
