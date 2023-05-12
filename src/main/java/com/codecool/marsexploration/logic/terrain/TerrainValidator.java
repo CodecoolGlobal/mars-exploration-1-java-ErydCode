@@ -11,7 +11,7 @@ public class TerrainValidator {
 
     private final Map<Integer, Map<Integer, Integer>> areaTerrainsCoordinatesMap = new HashMap<>();
     private final Map<Integer, Map<Integer, Integer>> possibleNextTerrainsCoordinatesMap = new HashMap<>();
-    private final Map<Integer, Integer> validNextTerrainsCoordinatesMap = new HashMap<>();
+    private final Map<Integer, Map<Integer, Integer>> validNextTerrainsCoordinatesMap = new HashMap<>();
     private final Map<Integer, Integer> actualPossibleCoordinates = new HashMap<>();
 
     public Map<Integer, Map<Integer, Integer>> getXY(String[][] planetTerrains, Area area, Random random, Display display) {
@@ -26,12 +26,10 @@ public class TerrainValidator {
         boolean isPossibleToProvideArea = true;
 
         while (isPossibleToProvideArea) {
-            possibleNextTerrainsCoordinatesMap.clear();
-            validNextTerrainsCoordinatesMap.clear();
-            actualPossibleCoordinates.clear();
-
+            clearAllMapsUsedToValidate();
             int areaSizeCounter = 1;
             while (areaSizeCounter < area.size() + 1) {
+                clearAllMapsUsedToValidate();
                 getPossibleNextTerrainsCoordinatesMap(maxPlanetLength, nextY, nextX);
                 System.out.println(possibleNextTerrainsCoordinatesMap);
                 getValidNextTerrainsCoordinatesMap(planetTerrains);
@@ -50,11 +48,15 @@ public class TerrainValidator {
                     getPossibleNextTerrainsCoordinatesMap(maxPlanetLength, nextY, nextX);
                     getValidNextTerrainsCoordinatesMap(planetTerrains);
                     System.out.println(validNextTerrainsCoordinatesMap);
+                    indexLastSteps++;
+                    if (areaTerrainsCoordinatesMap.size() < indexLastSteps) {
+                        isPossibleToProvideArea = false;
+                    }
                 }
-                isPossibleToProvideArea = false;
+                int randomNextCoordinate = random.nextInt(validNextTerrainsCoordinatesMap.size());
+
             }
             /*
-            int randomNextCoordinate = random.nextInt(validNextTerrainsCoordinatesMap.size());
             nextY = (int) validNextTerrainsCoordinatesMap.keySet().toArray()[randomNextCoordinate];
             nextX = validNextTerrainsCoordinatesMap.get(nextY);
             areaTerrainsCoordinatesMap.put(nextY, nextX);
@@ -69,13 +71,17 @@ public class TerrainValidator {
     }
 
     private void getValidNextTerrainsCoordinatesMap(String[][] planetTerrains) {
+        int counter = 0;
         for (Map.Entry<Integer, Map<Integer, Integer>> nextMain : possibleNextTerrainsCoordinatesMap.entrySet()) {
+            counter++;
             for (Map.Entry<Integer, Integer> next : nextMain.getValue().entrySet()) {
                 for (Map.Entry<Integer, Map<Integer, Integer>> pastMain : areaTerrainsCoordinatesMap.entrySet()) {
                     for (Map.Entry<Integer, Integer> past : pastMain.getValue().entrySet()) {
                         if (planetTerrains[next.getKey()][next.getValue()].equals(" ")
                                 && !next.getKey().equals(past.getKey()) && !next.getValue().equals(past.getValue())) {
-                            validNextTerrainsCoordinatesMap.put(next.getKey(), next.getValue());
+                            actualPossibleCoordinates.put(next.getKey(), next.getValue());
+                            validNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
+                            actualPossibleCoordinates.clear();
                         }
                     }
                 }
@@ -426,5 +432,11 @@ public class TerrainValidator {
             possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
             actualPossibleCoordinates.clear();
         }
+    }
+
+    private void clearAllMapsUsedToValidate() {
+        possibleNextTerrainsCoordinatesMap.clear();
+        validNextTerrainsCoordinatesMap.clear();
+        actualPossibleCoordinates.clear();
     }
 }
