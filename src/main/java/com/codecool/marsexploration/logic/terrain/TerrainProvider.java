@@ -20,13 +20,10 @@ public class TerrainProvider {
 
     public String[][] randomGenerated(Planet planet, Display display) {
         String[][] planetTerrains = new String[planet.xyLength()][planet.xyLength()];
-        for (int y = 0; y < planet.xyLength(); y++) {
-            for (int x = 0; x < planet.xyLength(); x++) {
-                planetTerrains[y][x] = " ";
-            }
-        }
+        initializeTerrain(planet, planetTerrains);
         for (int i = 0; i < planet.areas().size(); i++) {
             Area actualArea = planet.areas().get(i);
+            //TODO: Change to Map<Integer, List<Position>>
             Map<Integer, Map<Integer, Integer>> actualAreaXYs = terrainValidator.getXY(planetTerrains, actualArea, random, display);
             System.out.println("TERRAINPROVIDER actualAreaXYs: " + actualAreaXYs);
             if (!actualAreaXYs.isEmpty()) {
@@ -40,5 +37,13 @@ public class TerrainProvider {
             }
         }
         return resourcePlacer.placeInTerrain(planetTerrains, planet, random, display);
+    }
+
+    private static void initializeTerrain(Planet planet, String[][] planetTerrains) {
+        for (int y = 0; y < planet.xyLength(); y++) {
+            for (int x = 0; x < planet.xyLength(); x++) {
+                planetTerrains[y][x] = " ";
+            }
+        }
     }
 }

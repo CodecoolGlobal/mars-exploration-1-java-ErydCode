@@ -29,6 +29,7 @@ public class Application {
         Fake2DArray fake2DArray = new Fake2DArray();
         ResourcePlacer resourcePlacer = new ResourcePlacer();
 
+        //TODO: From here on the program runs - new Class
         display.printTitle("Welcome to planet creator - simulate your planet");
         display.printSubtitle("You want create your own Planet or use an already explored Exodus Planet?");
         int userChoice = 0;
@@ -40,11 +41,14 @@ public class Application {
             Planet createdPlanet = planet.getPlanet();
             display.printTitle(createdPlanet.name());
             String[][] userPlanet = terrainProvider.randomGenerated(createdPlanet, display);
+            //TODO: use your display class and extract this method
             for (String[] strings : userPlanet) {
                 System.out.println(Arrays.toString(strings));
             }
         }
-        if (userChoice == 2) {
+        else {
+        //if (userChoice == 2) {
+            //TODO: Magic number
             int[] rgbMountains = new int[]{102, 51, 0};
             List<Area> presetMountain = areasTypeProvider.getTerrain("Mountain", 4, 10, 40, "^", rgbMountains, random);
             int[] rgbPits = new int[]{32, 32, 32};

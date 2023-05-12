@@ -1,5 +1,6 @@
 package com.codecool.marsexploration.logic.resource;
 
+import com.codecool.marsexploration.data.Constants;
 import com.codecool.marsexploration.data.Planet;
 import com.codecool.marsexploration.ui.Display;
 
@@ -28,7 +29,11 @@ public class ResourcePlacer {
             String actualResourceSymbol = planet.resources().get(i).symbol();
             String actualPreferenceSymbol = planet.resources().get(i).preferences();
             int resourceAmount = 0;
-            resourceAmount = getResourceAmount(planet, random, display, actualAreaSymbol, totalAmountOfArea, actualPreferenceSymbol, resourceAmount);
+            //resourceAmount = getResourceAmount(planet, random, display, actualAreaSymbol, totalAmountOfArea, actualPreferenceSymbol, resourceAmount);
+            //TODO: test
+            resourceAmount = totalAmountOfArea > 4?
+                    totalAmountOfArea / random.nextInt(4, (totalAmountOfArea / 2)) :
+                    0;
             mapOfResourcesAndAmount.put(actualResourceSymbol, resourceAmount);
         }
         return mapOfResourcesAndAmount;
@@ -40,9 +45,9 @@ public class ResourcePlacer {
             if (minimumDivisor < totalAmountOfArea) {
                 resourceAmount = totalAmountOfArea / random.nextInt(minimumDivisor, (totalAmountOfArea / 2));
             } else {
-                while (minimumDivisor > 0) {
+                /*while (minimumDivisor > 0) {
                     minimumDivisor--;
-                }
+                }*/
                 display.errorMessage("Your Size of this Area is 0! Please make a new Planet with minim Area Size of 1");
             }
         } else {
@@ -113,9 +118,9 @@ public class ResourcePlacer {
                     }
                 }
             }
-            if (planetTerrains[randomY][randomX].equals(" ")) {
+            if (planetTerrains[randomY][randomX].equals(Constants.EMPTY_SYMBOL)) {
                 planetTerrains[randomY][randomX] = actualKeyOfResource;
             }
-        } while (actualTerrain.equals(actualKeyOfArea) && !actualTerrain.equals(" "));
+        } while (actualTerrain.equals(actualKeyOfArea) && !actualTerrain.equals(Constants.EMPTY_SYMBOL));
     }
 }
