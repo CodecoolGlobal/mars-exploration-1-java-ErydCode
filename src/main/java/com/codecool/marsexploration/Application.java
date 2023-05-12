@@ -56,10 +56,10 @@ public class Application {
             Resource presetWater = new Resource("Water", "≈", "#", rgbWater);
             allResource.add(presetMineral);
             allResource.add(presetWater);
-            Planet exploredExodusPlanet = new Planet("CodeCool", 500, allAreas, 8, allResource);
+            Planet exploredExodusPlanet = new Planet("CodeCool", 50, allAreas, 8, allResource);
             String[][] randomExodusPlanet =
-                    //terrainProvider.randomGenerated(exploredExodusPlanet, display);
-                    resourcePlacer.placeInTerrain(fake2DArray.getFakeMap(), exploredExodusPlanet, random, display);
+                    terrainProvider.randomGenerated(exploredExodusPlanet, display);
+                    //resourcePlacer.placeInTerrain(fake2DArray.getFakeMap(), exploredExodusPlanet, random, display);
             for (String[] strings : randomExodusPlanet) {
                 System.out.println(Arrays.toString(strings));
             }
