@@ -27,11 +27,13 @@ public class TerrainProvider {
         }
         for (int i = 0; i < planet.areas().size(); i++) {
             Area actualArea = planet.areas().get(i);
-            Map<Integer, Integer> actualAreaXYs = terrainValidator.getXY(planetTerrains, actualArea, random, display);
+            Map<Integer, Map<Integer, Integer>> actualAreaXYs = terrainValidator.getXY(planetTerrains, actualArea, random, display);
             System.out.println("TERRAINPROVIDER actualAreaXYs: " + actualAreaXYs);
             if (!actualAreaXYs.isEmpty()) {
-                for (Map.Entry<Integer, Integer> set : actualAreaXYs.entrySet()) {
-                    planetTerrains[set.getKey()][set.getValue()] = actualArea.symbol();
+                for (Map.Entry<Integer, Map<Integer, Integer>> mainSet : actualAreaXYs.entrySet()) {
+                    for (Map.Entry<Integer, Integer> set : mainSet.getValue().entrySet()) {
+                        planetTerrains[set.getKey()][set.getValue()] = actualArea.symbol();
+                    }
                 }
             } else {
                 display.errorMessage("The planet does not have enough space for all areas, please reduce your number of areas");
