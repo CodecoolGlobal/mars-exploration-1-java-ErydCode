@@ -1,442 +1,222 @@
 package com.codecool.marsexploration.logic.terrain;
 
 import com.codecool.marsexploration.data.Area;
+import com.codecool.marsexploration.data.Constants;
+import com.codecool.marsexploration.data.Coordinate;
 import com.codecool.marsexploration.ui.Display;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 public class TerrainValidator {
+    private final Display display;
+    private final Random random;
+    private final Set<Coordinate> areaCoordinates = new HashSet<>();
+    private final Set<Coordinate> possibleCoordinatesAroundCheckCoordinate = new HashSet<>();
+    private final Set<Coordinate> validCoordinatesAroundCheckCoordinate = new HashSet<>();
+    private Coordinate checkCoordinate;
+    private boolean isPossibleToProvideArea = true;
 
-    private final Map<Integer, Map<Integer, Integer>> areaTerrainsCoordinatesMap = new HashMap<>();
-    private final Map<Integer, Map<Integer, Integer>> possibleNextTerrainsCoordinatesMap = new HashMap<>();
-    private final Map<Integer, Map<Integer, Integer>> validNextTerrainsCoordinatesMap = new HashMap<>();
-    private final Map<Integer, Integer> actualPossibleCoordinates = new HashMap<>();
+    public TerrainValidator(Display display, Random random) {
+        this.display = display;
+        this.random = random;
+    }
 
-    public Map<Integer, Map<Integer, Integer>> getXY(String[][] planetTerrains, Area area, Random random, Display display) {
-        int maxPlanetLength = planetTerrains.length;
-        int startY = random.nextInt(maxPlanetLength);
-        int startX = random.nextInt(maxPlanetLength);
-        actualPossibleCoordinates.put(startY, startX);
-        areaTerrainsCoordinatesMap.put(0, actualPossibleCoordinates);
-        System.out.println(areaTerrainsCoordinatesMap);
-        int nextY = startY;
-        int nextX = startX;
-        boolean isPossibleToProvideArea = true;
+    public Set<Coordinate> getAreaCoordinate(String[][] planetTerrains, Area area) {
+        int maxPlanetLength = planetTerrains.length - 1;
+        getValidStartCoordinate(planetTerrains, maxPlanetLength, area);
+        while (isPossibleToProvideArea && areaCoordinates.size() < area.amountOfSymbols()) {
+            getValidCoordinates(planetTerrains, maxPlanetLength, area);
+            Coordinate randomValidCoordinate = validCoordinatesAroundCheckCoordinate.stream()
+                    .skip(random.nextInt(validCoordinatesAroundCheckCoordinate.size()))
+                    .findFirst().orElse(null);
+            assert randomValidCoordinate != null;
+            checkCoordinate = new Coordinate(randomValidCoordinate.y(), randomValidCoordinate.x());
+            areaCoordinates.add(checkCoordinate);
+        }
+        return areaCoordinates;
+    }
 
-        while (isPossibleToProvideArea) {
+    private void getValidStartCoordinate(String[][] areaTerrain, int maxPlanetLength, Area area) {
+        int trys = 0;
+        do {
+            int startY = random.nextInt(maxPlanetLength);
+            int startX = random.nextInt(maxPlanetLength);
+            if (areaTerrain[startY][startX].equals(Constants.EMPTY_SYMBOL)) {
+                checkCoordinate = new Coordinate(startY, startX);
+                areaCoordinates.add(checkCoordinate);
+            }
+            trys++;
+        } while (checkCoordinate == null && trys < maxPlanetLength);
+        if (checkCoordinate == null) {
+            display.errorMessage("Can't find valid Start Coordinate for " + area.name() + " after " + trys + "trys");
+            isPossibleToProvideArea = false;
+        }
+    }
+
+    private void getValidCoordinates(String[][] areaTerrain, int maxPlanetLength, Area area) {
+        Set<Coordinate> checkedCoordinates = new HashSet<>();
+        Set<Coordinate> restOfCheckedCoordinate = new HashSet<>(areaCoordinates);
+        do {
             clearAllMapsUsedToValidate();
-            int areaSizeCounter = 1;
-            while (areaSizeCounter < area.size() + 1) {
-                clearAllMapsUsedToValidate();
-                getPossibleNextTerrainsCoordinatesMap(maxPlanetLength, nextY, nextX);
-                System.out.println(possibleNextTerrainsCoordinatesMap);
-                getValidNextTerrainsCoordinatesMap(planetTerrains);
-                System.out.println(validNextTerrainsCoordinatesMap);
-                System.out.println(validNextTerrainsCoordinatesMap.isEmpty());
-                int indexLastSteps = 0;
-                while (validNextTerrainsCoordinatesMap.isEmpty()) {
-                    possibleNextTerrainsCoordinatesMap.clear();
-                    validNextTerrainsCoordinatesMap.clear();
-                    int pastSteps = (int) areaTerrainsCoordinatesMap.keySet().toArray()[indexLastSteps];
-                    Map<Integer, Integer> pastCoordinate = areaTerrainsCoordinatesMap.get(pastSteps);
-                    for (Map.Entry<Integer, Integer> lastStepSet : pastCoordinate.entrySet()) {
-                        nextY = lastStepSet.getKey();
-                        nextX = lastStepSet.getValue();
-                    }
-                    getPossibleNextTerrainsCoordinatesMap(maxPlanetLength, nextY, nextX);
-                    getValidNextTerrainsCoordinatesMap(planetTerrains);
-                    System.out.println(validNextTerrainsCoordinatesMap);
-                    indexLastSteps++;
-                    if (areaTerrainsCoordinatesMap.size() < indexLastSteps) {
-                        isPossibleToProvideArea = false;
-                    }
-                }
-                int randomNextCoordinate = random.nextInt(validNextTerrainsCoordinatesMap.size());
-
-            }
-            /*
-            nextY = (int) validNextTerrainsCoordinatesMap.keySet().toArray()[randomNextCoordinate];
-            nextX = validNextTerrainsCoordinatesMap.get(nextY);
-            areaTerrainsCoordinatesMap.put(nextY, nextX);
-            actualPossibleCoordinates.put(nextY, nextX);
-            steps.put(validNextTerrainsCoordinatesMap.size(), stepCoordinate);
-            possibleNextTerrainsCoordinatesMap.clear();
-            validNextTerrainsCoordinatesMap.clear();
-            areaSizeCounter++;
-            */
+            Coordinate randomCoordinateToValidate = restOfCheckedCoordinate.stream()
+                    .skip(random.nextInt(restOfCheckedCoordinate.size()))
+                    .findFirst().orElse(null);
+            assert randomCoordinateToValidate != null;
+            checkCoordinate = new Coordinate(randomCoordinateToValidate.y(), randomCoordinateToValidate.x());
+            checkedCoordinates.add(checkCoordinate);
+            restOfCheckedCoordinate.removeAll(checkedCoordinates);
+            getPossibleCoordinatesAroundCheckCoordinate(maxPlanetLength, checkCoordinate);
+            getValidCoordinatesFromPossibility(areaTerrain);
+        } while (validCoordinatesAroundCheckCoordinate.isEmpty() && !restOfCheckedCoordinate.isEmpty());
+        if (validCoordinatesAroundCheckCoordinate.isEmpty()) {
+            isPossibleToProvideArea = false;
+            display.errorMessage("Can't find valid Coordinate for " + area.name() + " after " + areaCoordinates.size() + "trys");
         }
-        return areaTerrainsCoordinatesMap;
     }
 
-    private void getValidNextTerrainsCoordinatesMap(String[][] planetTerrains) {
-        int counter = 0;
-        for (Map.Entry<Integer, Map<Integer, Integer>> nextMain : possibleNextTerrainsCoordinatesMap.entrySet()) {
-            counter++;
-            for (Map.Entry<Integer, Integer> next : nextMain.getValue().entrySet()) {
-                for (Map.Entry<Integer, Map<Integer, Integer>> pastMain : areaTerrainsCoordinatesMap.entrySet()) {
-                    for (Map.Entry<Integer, Integer> past : pastMain.getValue().entrySet()) {
-                        if (planetTerrains[next.getKey()][next.getValue()].equals(" ")
-                                && !next.getKey().equals(past.getKey()) && !next.getValue().equals(past.getValue())) {
-                            actualPossibleCoordinates.put(next.getKey(), next.getValue());
-                            validNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-                            actualPossibleCoordinates.clear();
-                        }
-                    }
-                }
+    private void getValidCoordinatesFromPossibility(String[][] areaTerrain) {
+        for (Coordinate possibleCoordinate : possibleCoordinatesAroundCheckCoordinate) {
+            String actualTerrain = areaTerrain[possibleCoordinate.y()][possibleCoordinate.x()];
+            if (actualTerrain.equals(Constants.EMPTY_SYMBOL)) {
+                validCoordinatesAroundCheckCoordinate.add(possibleCoordinate);
             }
         }
+        validCoordinatesAroundCheckCoordinate.removeAll(areaCoordinates);
     }
 
-    private void getPossibleNextTerrainsCoordinatesMap(int maxPlanetLength, int yCoordinate, int xCoordinate) {
-        fromAllTerrainsExceptEdges(maxPlanetLength, yCoordinate, xCoordinate);
-        fromLeftUpCorner(maxPlanetLength, yCoordinate, xCoordinate);
-        fromFirstEdge(maxPlanetLength, yCoordinate, xCoordinate);
-        fromRightUpCorner(maxPlanetLength, yCoordinate, xCoordinate);
-        fromRightEdge(maxPlanetLength, yCoordinate, xCoordinate);
-        fromLeftDownCorner(maxPlanetLength, yCoordinate, xCoordinate);
-        fromBottomEdge(maxPlanetLength, yCoordinate, xCoordinate);
-        fromRightDownCorner(maxPlanetLength, yCoordinate, xCoordinate);
-        fromLeftEdge(maxPlanetLength, yCoordinate, xCoordinate);
+    private void getPossibleCoordinatesAroundCheckCoordinate(int maxPlanetLength, Coordinate proofCoordinate) {
+        fromAllTerrainsExceptEdges(maxPlanetLength, proofCoordinate);
+        fromLeftUpCorner(maxPlanetLength, proofCoordinate);
+        fromFirstEdge(maxPlanetLength, proofCoordinate);
+        fromRightUpCorner(maxPlanetLength, proofCoordinate);
+        fromRightEdge(maxPlanetLength, proofCoordinate);
+        fromLeftDownCorner(maxPlanetLength, proofCoordinate);
+        fromBottomEdge(maxPlanetLength, proofCoordinate);
+        fromRightDownCorner(maxPlanetLength, proofCoordinate);
+        fromLeftEdge(maxPlanetLength, proofCoordinate);
     }
 
-    private void fromAllTerrainsExceptEdges(int maxPlanetLength, int yCoordinate, int xCoordinate) {
-        int counter = 1;
-        if (yCoordinate > 0 && yCoordinate < maxPlanetLength && xCoordinate > 0 && xCoordinate < maxPlanetLength) {
-            actualPossibleCoordinates.put(yCoordinate - 1, xCoordinate);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(yCoordinate - 1, xCoordinate - 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(yCoordinate - 1, xCoordinate + 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(yCoordinate + 1, xCoordinate);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(yCoordinate + 1, xCoordinate - 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(yCoordinate + 1, xCoordinate + 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(yCoordinate, xCoordinate - 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(yCoordinate, xCoordinate + 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
+    private void fromAllTerrainsExceptEdges(int maxPlanetLength, Coordinate proof) {
+        if (proof.y() > 0 && proof.y() < maxPlanetLength && proof.x() > 0 && proof.x() < maxPlanetLength) {
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() - 1, proof.x()));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() - 1, proof.x() - 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() - 1, proof.x() + 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() + 1, proof.x()));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() + 1, proof.x() - 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() + 1, proof.x() + 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y(), proof.x() - 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y(), proof.x() + 1));
         }
     }
 
-    private void fromLeftUpCorner(int maxPlanetLength, int yCoordinate, int xCoordinate) {
-        int counter = 1;
-        if (yCoordinate == 0 && xCoordinate == 0) {
-            actualPossibleCoordinates.put(0, 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(1, 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(1, 0);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(0, maxPlanetLength);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(1, maxPlanetLength);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(maxPlanetLength, 0);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(maxPlanetLength, 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(maxPlanetLength, maxPlanetLength);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
+    private void fromLeftUpCorner(int maxPlanetLength, Coordinate proof) {
+        if (proof.y() == 0 && proof.x() == 0) {
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(1, 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(1, 0));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, maxPlanetLength));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(1, maxPlanetLength));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, 0));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, maxPlanetLength));
         }
     }
 
-    private void fromFirstEdge(int maxPlanetLength, int yCoordinate, int xCoordinate) {
-        int counter = 1;
-        if (yCoordinate == 0) {
-            actualPossibleCoordinates.put(0, xCoordinate - 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(0, xCoordinate + 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(1, xCoordinate - 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(1, xCoordinate);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(1, xCoordinate + 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(maxPlanetLength, xCoordinate - 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(maxPlanetLength, xCoordinate);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(maxPlanetLength, xCoordinate + 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
+    private void fromFirstEdge(int maxPlanetLength, Coordinate proof) {
+        if (proof.y() == 0) {
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, proof.x() - 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, proof.x() + 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(1, proof.x() - 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(1, proof.x()));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(1, proof.x() + 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, proof.x() - 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, proof.x()));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, proof.x() + 1));
         }
     }
 
-    private void fromRightUpCorner(int maxPlanetLength, int yCoordinate, int xCoordinate) {
-        int counter = 1;
-        if (yCoordinate == 0 && xCoordinate == maxPlanetLength) {
-            actualPossibleCoordinates.put(0, maxPlanetLength - 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(0, 0);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(1, maxPlanetLength - 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(1, maxPlanetLength);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(1, 0);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(maxPlanetLength, maxPlanetLength);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(maxPlanetLength, maxPlanetLength - 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(maxPlanetLength, 0);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
+    private void fromRightUpCorner(int maxPlanetLength, Coordinate proof) {
+        if (proof.y() == 0 && proof.x() == maxPlanetLength) {
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, maxPlanetLength - 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, 0));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(1, maxPlanetLength - 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(1, maxPlanetLength));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(1, 0));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, maxPlanetLength));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, maxPlanetLength - 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, 0));
         }
     }
 
-    private void fromRightEdge(int maxPlanetLength, int yCoordinate, int xCoordinate) {
-        int counter = 1;
-        if (xCoordinate == maxPlanetLength) {
-            actualPossibleCoordinates.put(yCoordinate, 0);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(yCoordinate - 1, 0);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(yCoordinate + 1, 0);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(yCoordinate, maxPlanetLength - 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(yCoordinate - 1, maxPlanetLength - 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(yCoordinate + 1, maxPlanetLength - 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(yCoordinate - 1, maxPlanetLength);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(yCoordinate + 1, maxPlanetLength);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
+    private void fromRightEdge(int maxPlanetLength, Coordinate proof) {
+        if (proof.x() == maxPlanetLength) {
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y(), 0));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() - 1, 0));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() + 1, 0));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y(), maxPlanetLength - 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() - 1, maxPlanetLength - 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() + 1, maxPlanetLength - 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() - 1, maxPlanetLength));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() + 1, maxPlanetLength));
         }
     }
 
-    private void fromRightDownCorner(int maxPlanetLength, int yCoordinate, int xCoordinate) {
-        int counter = 1;
-        if (yCoordinate == maxPlanetLength && xCoordinate == maxPlanetLength) {
-            actualPossibleCoordinates.put(maxPlanetLength, maxPlanetLength - 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(maxPlanetLength, maxPlanetLength + 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(maxPlanetLength - 1, maxPlanetLength);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(maxPlanetLength - 1, maxPlanetLength - 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(maxPlanetLength - 1, maxPlanetLength + 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(0, maxPlanetLength);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(0, maxPlanetLength - 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(0, 0);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
+    private void fromRightDownCorner(int maxPlanetLength, Coordinate proof) {
+        if (proof.y() == maxPlanetLength && proof.x() == maxPlanetLength) {
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, maxPlanetLength - 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, maxPlanetLength + 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength - 1, maxPlanetLength));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength - 1, maxPlanetLength - 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength - 1, maxPlanetLength + 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, maxPlanetLength));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, maxPlanetLength - 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, 0));
         }
     }
 
-    private void fromBottomEdge(int maxPlanetLength, int yCoordinate, int xCoordinate) {
-        int counter = 1;
-        if (yCoordinate == maxPlanetLength) {
-            actualPossibleCoordinates.put(maxPlanetLength, xCoordinate - 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(maxPlanetLength, xCoordinate + 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(maxPlanetLength - 1, xCoordinate - 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(maxPlanetLength - 1, xCoordinate);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(maxPlanetLength - 1, xCoordinate + 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(0, xCoordinate - 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(0, xCoordinate);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(0, xCoordinate + 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
+    private void fromBottomEdge(int maxPlanetLength, Coordinate proof) {
+        if (proof.y() == maxPlanetLength) {
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, proof.x() - 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, proof.x() + 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength - 1, proof.x() - 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength - 1, proof.x()));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength - 1, proof.x() + 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, proof.x() - 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, proof.x()));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, proof.x() + 1));
         }
     }
 
-    private void fromLeftDownCorner(int maxPlanetLength, int yCoordinate, int xCoordinate) {
-        int counter = 1;
-        if (yCoordinate == maxPlanetLength && xCoordinate == 0) {
-            actualPossibleCoordinates.put(maxPlanetLength, maxPlanetLength);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(maxPlanetLength, 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(maxPlanetLength - 1, 0);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(maxPlanetLength - 1, 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(maxPlanetLength - 1, maxPlanetLength);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(0, 0);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(0, 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(0, maxPlanetLength);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
+    private void fromLeftDownCorner(int maxPlanetLength, Coordinate proof) {
+        if (proof.y() == maxPlanetLength && proof.x() == 0) {
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, maxPlanetLength));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength - 1, 0));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength - 1, 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength - 1, maxPlanetLength));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, 0));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, maxPlanetLength));
         }
     }
 
-    private void fromLeftEdge(int maxPlanetLength, int yCoordinate, int xCoordinate) {
-        int counter = 1;
-        if (xCoordinate == 0) {
-            actualPossibleCoordinates.put(yCoordinate - 1, 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(yCoordinate, 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(yCoordinate + 1, 1);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(yCoordinate - 1, 0);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(yCoordinate + 1, 0);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(yCoordinate - 1, maxPlanetLength);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(yCoordinate, maxPlanetLength);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
-            counter++;
-            actualPossibleCoordinates.put(yCoordinate + 1, maxPlanetLength);
-            possibleNextTerrainsCoordinatesMap.put(counter, actualPossibleCoordinates);
-            actualPossibleCoordinates.clear();
+    private void fromLeftEdge(int maxPlanetLength, Coordinate proof) {
+        if (proof.x() == 0) {
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() - 1, 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y(), 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() + 1, 1));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() - 1, 0));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() + 1, 0));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() - 1, maxPlanetLength));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y(), maxPlanetLength));
+            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() + 1, maxPlanetLength));
         }
     }
 
     private void clearAllMapsUsedToValidate() {
-        possibleNextTerrainsCoordinatesMap.clear();
-        validNextTerrainsCoordinatesMap.clear();
-        actualPossibleCoordinates.clear();
+        possibleCoordinatesAroundCheckCoordinate.clear();
+        validCoordinatesAroundCheckCoordinate.clear();
     }
 }
