@@ -12,7 +12,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ResourcePlacer {
-    public String[][] placeInTerrain(String[][] planetTerrains, Planet planet, Random random, Display display) {
+    private final Random random;
+    private final Display display;
+
+    public ResourcePlacer(Random random, Display display) {
+        this.random = random;
+        this.display = display;
+    }
+
+    public String[][] placeInTerrain(String[][] planetTerrains, Planet planet) {
         //ToDo Maybe Small Bug: by creating Map preference Symbol from Resource have to be equal to Area Symbol with the Same Index!
         Map<String, Integer> mapOfAreaSymbolAndAmount = getMapOfAreasAndTotalSymbolsOnPlanet(planetTerrains, planet);
         Map<String, Integer> mapOfResourcesAndAmount = getMapOfResourcesAndAmount(planet, random, display, mapOfAreaSymbolAndAmount);
