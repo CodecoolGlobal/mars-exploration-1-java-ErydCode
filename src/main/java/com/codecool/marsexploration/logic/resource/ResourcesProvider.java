@@ -12,7 +12,7 @@ import java.util.Set;
 
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 
-public class ResourceProvider {
+public class ResourcesProvider {
     private String wantNewResource;
     private final List<String> usedSymbols = new ArrayList<>();
 
