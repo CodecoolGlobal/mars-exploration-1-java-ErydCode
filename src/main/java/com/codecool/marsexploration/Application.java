@@ -3,9 +3,11 @@ package com.codecool.marsexploration;
 import com.codecool.marsexploration.data.Area;
 import com.codecool.marsexploration.data.Planet;
 import com.codecool.marsexploration.data.Resource;
+import com.codecool.marsexploration.logic.area.AreasProvider;
 import com.codecool.marsexploration.logic.area.AreasTypeProvider;
 import com.codecool.marsexploration.logic.planet.PlanetProvider;
 import com.codecool.marsexploration.logic.resource.ResourcePlacer;
+import com.codecool.marsexploration.logic.resource.ResourcesProvider;
 import com.codecool.marsexploration.logic.terrain.TerrainProvider;
 import com.codecool.marsexploration.ui.Display;
 import com.codecool.marsexploration.ui.Input;
@@ -18,16 +20,17 @@ import java.util.Random;
 
 public class Application {
     public static void main(String[] args) {
-        MapImageGenerator mapImageGenerator = new MapImageGenerator();
-
         Display display = new Display();
         Input input = new Input(display);
         Random random = new Random();
-        PlanetProvider planet = new PlanetProvider(display, input, random);
         AreasTypeProvider areasTypeProvider = new AreasTypeProvider();
-        TerrainProvider terrainProvider = new TerrainProvider(random);
+        AreasProvider areas = new AreasProvider(display, input, random, areasTypeProvider);
+        ResourcesProvider resources = new ResourcesProvider();
+        PlanetProvider planet = new PlanetProvider(display, input, random, areas, resources);
+        ResourcePlacer resourcePlacer = new ResourcePlacer(random, display);
+        TerrainProvider terrainProvider = new TerrainProvider(display, random, resourcePlacer);
+        MapImageGenerator mapImageGenerator = new MapImageGenerator();
         Fake2DArray fake2DArray = new Fake2DArray();
-        ResourcePlacer resourcePlacer = new ResourcePlacer();
 
         //TODO: From here on the program runs - new Class
         display.printTitle("Welcome to planet creator - simulate your planet");
@@ -40,19 +43,18 @@ public class Application {
         if (userChoice == 1) {
             Planet createdPlanet = planet.getPlanet();
             display.printTitle(createdPlanet.name());
-            String[][] userPlanet = terrainProvider.randomGenerated(createdPlanet, display);
+            String[][] userPlanet = terrainProvider.getRandomGeneratedTerrainForPlanet(createdPlanet);
             //TODO: use your display class and extract this method
             for (String[] strings : userPlanet) {
                 System.out.println(Arrays.toString(strings));
             }
         }
-        else {
-        //if (userChoice == 2) {
+        if (userChoice == 2) {
             //TODO: Magic number
             int[] rgbMountains = new int[]{102, 51, 0};
-            List<Area> presetMountain = areasTypeProvider.getTerrain("Mountain", 4, 10, 40, "^", rgbMountains, random);
+            List<Area> presetMountain = areasTypeProvider.getArea("Mountain", 4, 10, 40, "^", rgbMountains, random);
             int[] rgbPits = new int[]{32, 32, 32};
-            List<Area> presetPits = areasTypeProvider.getTerrain("Mountain", 4, 10, 40, "#", rgbPits, random);
+            List<Area> presetPits = areasTypeProvider.getArea("Pit", 2, 5, 15, "#", rgbPits, random);
             List<Area> allAreas = new ArrayList<>();
             allAreas.addAll(presetMountain);
             allAreas.addAll(presetPits);
@@ -65,12 +67,17 @@ public class Application {
             allResource.add(presetWater);
             Planet exploredExodusPlanet = new Planet("CodeCool", 50, allAreas, 8, allResource);
             String[][] randomExodusPlanet =
-                    //  terrainProvider.randomGenerated(exploredExodusPlanet, display);
-                    resourcePlacer.placeInTerrain(fake2DArray.getFakeMap(), exploredExodusPlanet, random, display);
+                    terrainProvider.getRandomGeneratedTerrainForPlanet(exploredExodusPlanet);
+            //resourcePlacer.placeInTerrain(fake2DArray.getFakeMap(), exploredExodusPlanet, random, display);
             for (String[] strings : randomExodusPlanet) {
                 System.out.println(Arrays.toString(strings));
                 mapImageGenerator.generateImage(exploredExodusPlanet, allAreas, allResource, randomExodusPlanet);
             }
+            /*
+            List<Area> allAreas = areas.getAreas();
+            List<Resource> allResource = resources.getResource(display, input, allAreas);
+            return new Planet(name, xyLength, allAreas, amountAreas, allResource);
+             */
         }
         display.printEndLines();
     }
