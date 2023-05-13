@@ -1,48 +1,49 @@
 package com.codecool.marsexploration.logic.terrain;
 
 import com.codecool.marsexploration.data.Area;
+import com.codecool.marsexploration.data.Constants;
+import com.codecool.marsexploration.data.Coordinate;
 import com.codecool.marsexploration.data.Planet;
 import com.codecool.marsexploration.logic.resource.ResourcePlacer;
 import com.codecool.marsexploration.ui.Display;
 
-import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 public class TerrainProvider {
+    private final Display display;
     private final Random random;
-    //ToDo initial this classes down below just one time put all in Application and get it per Parameter or Constructor!
-    private final TerrainValidator terrainValidator = new TerrainValidator();
-    private final ResourcePlacer resourcePlacer = new ResourcePlacer();
+    private final ResourcePlacer resourcePlacer;
 
-    public TerrainProvider(Random random) {
+    public TerrainProvider(Display display, Random random, ResourcePlacer resourcePlacer) {
+        this.display = display;
         this.random = random;
+        this.resourcePlacer = resourcePlacer;
     }
 
-    public String[][] randomGenerated(Planet planet, Display display) {
+    public String[][] getRandomGeneratedTerrainForPlanet(Planet planet) {
         String[][] planetTerrains = new String[planet.xyLength()][planet.xyLength()];
-        initializeTerrain(planet, planetTerrains);
+        initializeTerrainWithEmptySymbols(planetTerrains);
         for (int i = 0; i < planet.areas().size(); i++) {
             Area actualArea = planet.areas().get(i);
-            //TODO: Change to Map<Integer, List<Position>>
-            Map<Integer, Map<Integer, Integer>> actualAreaXYs = terrainValidator.getXY(planetTerrains, actualArea, random, display);
-            System.out.println("TERRAINPROVIDER actualAreaXYs: " + actualAreaXYs);
-            if (!actualAreaXYs.isEmpty()) {
-                for (Map.Entry<Integer, Map<Integer, Integer>> mainSet : actualAreaXYs.entrySet()) {
-                    for (Map.Entry<Integer, Integer> set : mainSet.getValue().entrySet()) {
-                        planetTerrains[set.getKey()][set.getValue()] = actualArea.symbol();
-                    }
+            TerrainValidator terrainValidator = new TerrainValidator(display, random);
+            Set<Coordinate> coordinates = terrainValidator.getAreaCoordinate(planetTerrains, actualArea);
+            if (!coordinates.isEmpty()) {
+                for (Coordinate coordinate : coordinates) {
+                    planetTerrains[coordinate.y()][coordinate.x()] = actualArea.symbol();
                 }
             } else {
                 display.errorMessage("The planet does not have enough space for all areas, please reduce your number of areas");
             }
         }
-        return resourcePlacer.placeInTerrain(planetTerrains, planet, random, display);
+        return planetTerrains;
+        //return resourcePlacer.placeInTerrain(planetTerrains, planet);
     }
 
-    private static void initializeTerrain(Planet planet, String[][] planetTerrains) {
-        for (int y = 0; y < planet.xyLength(); y++) {
-            for (int x = 0; x < planet.xyLength(); x++) {
-                planetTerrains[y][x] = " ";
+    private void initializeTerrainWithEmptySymbols(String[][] planetTerrains) {
+        for (int y = 0; y < planetTerrains.length; y++) {
+            for (int x = 0; x < planetTerrains[y].length; x++) {
+                planetTerrains[y][x] = Constants.EMPTY_SYMBOL;
             }
         }
     }
