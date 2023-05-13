@@ -5,7 +5,7 @@ import java.util.Map;
 public class Display {
     private static final String ANSI_RED = "\u001B[31m";
     private static final String ANSI_DEFAULT = "\u001B[0m";
-    private final int displayLength = 82;
+    private final int displayLength = 100;
 
     public void printMenu(Map<Integer, String> menuItems) {
         for (Map.Entry<Integer, String> item : menuItems.entrySet()) {
