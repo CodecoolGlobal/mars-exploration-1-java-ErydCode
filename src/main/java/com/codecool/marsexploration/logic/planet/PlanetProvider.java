@@ -1,48 +1,46 @@
 package com.codecool.marsexploration.logic.planet;
 
-import com.codecool.marsexploration.data.Area;
 import com.codecool.marsexploration.data.Planet;
-import com.codecool.marsexploration.data.Resource;
-import com.codecool.marsexploration.logic.area.AreasProvider;
-import com.codecool.marsexploration.logic.resource.ResourcesProvider;
+import com.codecool.marsexploration.io.PlanetImageWriter;
+import com.codecool.marsexploration.logic.terrain.TerrainProvider;
 import com.codecool.marsexploration.ui.Display;
 import com.codecool.marsexploration.ui.Input;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
+
 
 public class PlanetProvider {
-
     private final Display display;
     private final Input input;
-    private final Random random;
-    private final AreasProvider areas;
-    private final ResourcesProvider resource;
+    private final PlanetTypeProvider planetTypeProvider;
+    private final TerrainProvider terrainProvider;
+    private final PlanetImageWriter planetImageWriter;
 
-    public PlanetProvider(Display display, Input input, Random random, AreasProvider areas, ResourcesProvider resource) {
+    public PlanetProvider(Display display, Input input, PlanetTypeProvider planetTypeProvider, TerrainProvider terrainProvider, PlanetImageWriter planetImageWriter) {
         this.display = display;
         this.input = input;
-        this.random = random;
-        this.areas = areas;
-        this.resource = resource;
+        this.planetTypeProvider = planetTypeProvider;
+        this.terrainProvider = terrainProvider;
+        this.planetImageWriter = planetImageWriter;
     }
 
-    public Planet getPlanet() {
-        display.printTitle("Create your planet");
-        String name = input.getUserInput("Please enter the name of the planet.");
-        int xyLength = input.getNumericUserInput("Please enter length of the planet.");
-        List<Area> allAreas = areas.getAreas();
-        int amountAreas = 0;
-        while (amountAreas < allAreas.size()) {
-            amountAreas = input.getNumericUserInput("Please enter how many areas the planet have.\n" +
-                    "It must be higher than " + allAreas.size());
+    public void userCustomized() {
+        String wantCreateOwnNewPlanet = "yes";
+        while (!containsIgnoreCase("no", wantCreateOwnNewPlanet)) {
+            Planet createdPlanet = planetTypeProvider.getPlanet();
+            String wantGenerateNewTerrainsForSamePlanet = "yes";
+            while (!containsIgnoreCase("no", wantGenerateNewTerrainsForSamePlanet)) {
+                int counterImgName = 0;
+                display.printTitle(createdPlanet.name());
+                String[][] PlanetTerrain = terrainProvider.getRandomGeneratedTerrainForPlanet(createdPlanet);
+                display.doppleArrayMap(PlanetTerrain, "Your Planet look");
+                display.printEndLines();
+                planetImageWriter.generateImage(createdPlanet, PlanetTerrain, counterImgName);
+                wantGenerateNewTerrainsForSamePlanet = input.getUserInput("Do you want to create a new map?\n" +
+                        "Pleaser enter the command \"yes\"/\"y\" or \"no\"/\"n\".");
+            }
+            wantCreateOwnNewPlanet = input.getUserInput("Do you want to create a new costume planet?\n" +
+                    "Pleaser enter the command \"yes\"/\"y\" or \"no\"/\"n\".");
         }
-        List<Area> wishedAmountOfArea = new ArrayList<>(allAreas);
-        while (wishedAmountOfArea.size() < amountAreas) {
-            wishedAmountOfArea.add(allAreas.get(random.nextInt(allAreas.size())));
-        }
-        List<Resource> allResource = resource.getResource(display, input, allAreas);
-        return new Planet(name, xyLength, wishedAmountOfArea, amountAreas, allResource);
     }
 }
