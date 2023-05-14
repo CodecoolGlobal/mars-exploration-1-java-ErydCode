@@ -30,7 +30,7 @@ public class ResourcesProvider {
                     "The Planet have this Type of area: " + areaSymbols);
             int[] rgb = input.getRGB();
             allResource.add(new Resource(name, symbol, preferences, rgb));
-            wantNewResource = input.getUserInput("You want to create a new resource?\n" +
+            wantNewResource = input.getUserInput("Do you want to create a new resource?\n" +
                     "Pleaser enter the command \"yes\"/\"y\" or \"no\"/\"n\".");
         }
         return allResource;
