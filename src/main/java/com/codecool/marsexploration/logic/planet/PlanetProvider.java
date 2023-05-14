@@ -8,6 +8,7 @@ import com.codecool.marsexploration.logic.resource.ResourcesProvider;
 import com.codecool.marsexploration.ui.Display;
 import com.codecool.marsexploration.ui.Input;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -31,9 +32,17 @@ public class PlanetProvider {
         display.printTitle("Create your planet");
         String name = input.getUserInput("Please enter the name of the planet.");
         int xyLength = input.getNumericUserInput("Please enter length of the planet.");
-        int amountAreas = input.getNumericUserInput("Please enter how many areas the planet have.");
         List<Area> allAreas = areas.getAreas();
+        int amountAreas = 0;
+        while (amountAreas < allAreas.size()) {
+            amountAreas = input.getNumericUserInput("Please enter how many areas the planet have.\n" +
+                    "It must be higher than " + allAreas.size());
+        }
+        List<Area> wishedAmountOfArea = new ArrayList<>(allAreas);
+        while (wishedAmountOfArea.size() < amountAreas) {
+            wishedAmountOfArea.add(allAreas.get(random.nextInt(allAreas.size())));
+        }
         List<Resource> allResource = resource.getResource(display, input, allAreas);
-        return new Planet(name, xyLength, allAreas, amountAreas, allResource);
+        return new Planet(name, xyLength, wishedAmountOfArea, amountAreas, allResource);
     }
 }
