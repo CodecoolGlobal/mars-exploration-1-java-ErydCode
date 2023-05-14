@@ -1,5 +1,6 @@
 package com.codecool.marsexploration.ui;
 
+import java.util.Arrays;
 import java.util.Map;
 
 public class Display {
@@ -15,6 +16,13 @@ public class Display {
                 itemName = convertItemName.substring(0, 1).toUpperCase() + convertItemName.substring(1);
             }
             System.out.println("Enter " + item.getKey() + " to get " + "\"" + itemName + "\".");
+        }
+    }
+
+    public void doppleArrayMap(String[][] userPlanet, String message) {
+        printTitle(message);
+        for (String[] strings : userPlanet) {
+            System.out.println(Arrays.toString(strings));
         }
     }
 
