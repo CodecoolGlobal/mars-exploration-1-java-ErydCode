@@ -26,15 +26,7 @@ public class TerrainValidator {
     public Set<Coordinate> getAreaCoordinate(String[][] planetTerrains, Area area) {
         int maxPlanetLength = planetTerrains.length - 1;
         getValidStartCoordinate(planetTerrains, maxPlanetLength, area);
-        while (isPossibleToProvideArea && areaCoordinates.size() < area.amountOfSymbols()) {
-            getValidCoordinates(planetTerrains, maxPlanetLength, area);
-            Coordinate randomValidCoordinate = validCoordinatesAroundCheckCoordinate.stream()
-                    .skip(random.nextInt(validCoordinatesAroundCheckCoordinate.size()))
-                    .findFirst().orElse(null);
-            assert randomValidCoordinate != null;
-            checkCoordinate = new Coordinate(randomValidCoordinate.y(), randomValidCoordinate.x());
-            areaCoordinates.add(checkCoordinate);
-        }
+        addValidCoordinateToAreaCoordinates(planetTerrains, area, maxPlanetLength);
         return areaCoordinates;
     }
 
@@ -52,6 +44,18 @@ public class TerrainValidator {
         if (checkCoordinate == null) {
             display.errorMessage("Can't find valid Start Coordinate for " + area.name() + " after " + trys + "trys");
             isPossibleToProvideArea = false;
+        }
+    }
+
+    private void addValidCoordinateToAreaCoordinates(String[][] planetTerrains, Area area, int maxPlanetLength) {
+        while (isPossibleToProvideArea && areaCoordinates.size() < area.amountOfSymbols()) {
+            getValidCoordinates(planetTerrains, maxPlanetLength, area);
+            Coordinate randomValidCoordinate = validCoordinatesAroundCheckCoordinate.stream()
+                    .skip(random.nextInt(validCoordinatesAroundCheckCoordinate.size()))
+                    .findFirst().orElse(null);
+            assert randomValidCoordinate != null;
+            checkCoordinate = new Coordinate(randomValidCoordinate.y(), randomValidCoordinate.x());
+            areaCoordinates.add(checkCoordinate);
         }
     }
 
