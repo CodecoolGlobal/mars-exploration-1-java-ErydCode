@@ -1,4 +1,4 @@
 package com.codecool.marsexploration.data;
 
-public record Resource(String name, String symbol, String preferences, int[] rgb) implements SymbolColorProvider {
+public record Resource(String name, String symbol, String preferences, int[] rgb) {
 }
