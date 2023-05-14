@@ -7,6 +7,7 @@ import com.codecool.marsexploration.data.Planet;
 import com.codecool.marsexploration.logic.resource.ResourcePlacer;
 import com.codecool.marsexploration.ui.Display;
 
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Set;
 
@@ -41,10 +42,8 @@ public class TerrainProvider {
     }
 
     private void initializeTerrainWithEmptySymbols(String[][] planetTerrains) {
-        for (int y = 0; y < planetTerrains.length; y++) {
-            for (int x = 0; x < planetTerrains[y].length; x++) {
-                planetTerrains[y][x] = Constants.EMPTY_SYMBOL;
-            }
+        for (String[] planetTerrain : planetTerrains) {
+            Arrays.fill(planetTerrain, Constants.EMPTY_SYMBOL);
         }
     }
 }
