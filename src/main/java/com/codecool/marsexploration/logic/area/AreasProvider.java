@@ -46,7 +46,7 @@ public class AreasProvider {
             int[] rgb = input.getRGB();
             List<Area> areas = areasTypeProvider.getArea(name, amount, minSize, maxSize, symbol, rgb, random);
             allAreas.addAll(areas);
-            wantNewArea = input.getUserInput("You want to create a new Area?\n" +
+            wantNewArea = input.getUserInput("Do you want to create a new area?\n" +
                     "Pleaser enter the command \"yes\"/\"y\" or \"no\"/\"n\"");
         }
         return allAreas;
