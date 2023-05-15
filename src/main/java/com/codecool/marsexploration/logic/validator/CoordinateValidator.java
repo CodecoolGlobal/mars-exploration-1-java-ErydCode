@@ -5,16 +5,16 @@ import com.codecool.marsexploration.data.Coordinate;
 import java.util.Set;
 
 public class CoordinateValidator {
-    public void getPossibleCoordinatesAroundCheckCoordinate(Set<Coordinate> possibleCoordinatesAroundCheckCoordinate, int maxPlanetLength, Coordinate proofCoordinate) {
-        fromAllTerrainsExceptEdges(possibleCoordinatesAroundCheckCoordinate, maxPlanetLength, proofCoordinate);
-        fromLeftUpCorner(possibleCoordinatesAroundCheckCoordinate, maxPlanetLength, proofCoordinate);
-        fromFirstEdge(possibleCoordinatesAroundCheckCoordinate, maxPlanetLength, proofCoordinate);
-        fromRightUpCorner(possibleCoordinatesAroundCheckCoordinate, maxPlanetLength, proofCoordinate);
-        fromRightEdge(possibleCoordinatesAroundCheckCoordinate, maxPlanetLength, proofCoordinate);
-        fromLeftDownCorner(possibleCoordinatesAroundCheckCoordinate, maxPlanetLength, proofCoordinate);
-        fromBottomEdge(possibleCoordinatesAroundCheckCoordinate, maxPlanetLength, proofCoordinate);
-        fromRightDownCorner(possibleCoordinatesAroundCheckCoordinate, maxPlanetLength, proofCoordinate);
-        fromLeftEdge(possibleCoordinatesAroundCheckCoordinate, maxPlanetLength, proofCoordinate);
+    public void populatePossibleCoordinatesAroundCheckCoordinate(Set<Coordinate> possibleCoordinatesAroundCheckCoordinate, int maxPlanetLength, Coordinate current) {
+        fromAllTerrainsExceptEdges(possibleCoordinatesAroundCheckCoordinate, maxPlanetLength, current);
+        fromLeftUpCorner(possibleCoordinatesAroundCheckCoordinate, maxPlanetLength, current);
+        fromFirstEdge(possibleCoordinatesAroundCheckCoordinate, maxPlanetLength, current);
+        fromRightUpCorner(possibleCoordinatesAroundCheckCoordinate, maxPlanetLength, current);
+        fromRightEdge(possibleCoordinatesAroundCheckCoordinate, maxPlanetLength, current);
+        fromLeftDownCorner(possibleCoordinatesAroundCheckCoordinate, maxPlanetLength, current);
+        fromBottomEdge(possibleCoordinatesAroundCheckCoordinate, maxPlanetLength, current);
+        fromRightDownCorner(possibleCoordinatesAroundCheckCoordinate, maxPlanetLength, current);
+        fromLeftEdge(possibleCoordinatesAroundCheckCoordinate, maxPlanetLength, current);
     }
 
     private void fromAllTerrainsExceptEdges(Set<Coordinate> possibleCoordinatesAroundCheckCoordinate, int maxPlanetLength, Coordinate proof) {

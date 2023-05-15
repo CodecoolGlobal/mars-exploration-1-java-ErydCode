@@ -12,7 +12,7 @@ public class Application {
 //    at com.codecool.marsexploration.StartCreatingPlanets.run(StartCreatingPlanets.java:50)
 //    at com.codecool.marsexploration.Application.main(Application.java:6)
     public static void main(String[] args) {
-        StartCreatingPlanets startCreatingPlanets = new StartCreatingPlanets();
-        startCreatingPlanets.run();
+        PlanetCreator planetCreator = new PlanetCreator();
+        planetCreator.createPlanets();
     }
 }

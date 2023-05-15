@@ -3,7 +3,7 @@ package com.codecool.marsexploration.logic.terrain;
 import com.codecool.marsexploration.data.Area;
 import com.codecool.marsexploration.data.Constants;
 import com.codecool.marsexploration.data.Coordinate;
-import com.codecool.marsexploration.logic.validator.CoordinateValidator;
+import com.codecool.marsexploration.logic.CoordinateCreator;
 import com.codecool.marsexploration.ui.Display;
 
 import java.util.HashSet;
@@ -13,23 +13,23 @@ import java.util.Set;
 public class TerrainValidator {
     private final Display display;
     private final Random random;
-    private final CoordinateValidator coordinateValidator;
+    private final CoordinateCreator coordinateCreator;
     private final Set<Coordinate> areaCoordinates = new HashSet<>();
     private final Set<Coordinate> possibleCoordinatesAroundCheckCoordinate = new HashSet<>();
     private final Set<Coordinate> validCoordinatesAroundCheckCoordinate = new HashSet<>();
     private Coordinate checkCoordinate;
     private boolean isPossibleToProvideArea = true;
 
-    public TerrainValidator(Display display, Random random, CoordinateValidator coordinateValidator) {
+    public TerrainValidator(Display display, Random random, CoordinateCreator coordinateCreator) {
         this.display = display;
         this.random = random;
-        this.coordinateValidator = coordinateValidator;
+        this.coordinateCreator = coordinateCreator;
     }
 
     public Set<Coordinate> getAreaCoordinate(String[][] planetTerrains, Area area) {
         int maxPlanetLength = planetTerrains.length - 1;
         getValidStartCoordinate(planetTerrains, maxPlanetLength, area);
-        addValidCoordinateToAreaCoordinates(planetTerrains, area, maxPlanetLength);
+        addValidCoordinateToAreaCoordinates(planetTerrains, area, planetTerrains.length);
         return areaCoordinates;
     }
 
@@ -52,7 +52,7 @@ public class TerrainValidator {
 
     private void addValidCoordinateToAreaCoordinates(String[][] planetTerrains, Area area, int maxPlanetLength) {
         while (isPossibleToProvideArea && areaCoordinates.size() < area.amountOfSymbols()) {
-            getValidCoordinates(planetTerrains, maxPlanetLength, area);
+            createValidCoordinates(planetTerrains, maxPlanetLength, area);
             Coordinate randomValidCoordinate = validCoordinatesAroundCheckCoordinate.stream()
                     .skip(random.nextInt(validCoordinatesAroundCheckCoordinate.size()))
                     .findFirst().orElse(null);
@@ -62,7 +62,7 @@ public class TerrainValidator {
         }
     }
 
-    private void getValidCoordinates(String[][] areaTerrain, int maxPlanetLength, Area area) {
+    private void createValidCoordinates(String[][] areaTerrain, int maxPlanetLength, Area area) {
         Set<Coordinate> checkedCoordinates = new HashSet<>();
         Set<Coordinate> restOfCheckedCoordinate = new HashSet<>(areaCoordinates);
         do {
@@ -74,7 +74,8 @@ public class TerrainValidator {
             checkCoordinate = new Coordinate(randomCoordinateToValidate.y(), randomCoordinateToValidate.x());
             checkedCoordinates.add(checkCoordinate);
             restOfCheckedCoordinate.removeAll(checkedCoordinates);
-            coordinateValidator.getPossibleCoordinatesAroundCheckCoordinate(possibleCoordinatesAroundCheckCoordinate, maxPlanetLength, checkCoordinate);
+            possibleCoordinatesAroundCheckCoordinate.addAll(coordinateCreator.create(checkCoordinate, maxPlanetLength));
+            //coordinateValidator.populatePossibleCoordinatesAroundCheckCoordinate(possibleCoordinatesAroundCheckCoordinate, maxPlanetLength, checkCoordinate);
             getValidCoordinatesFromPossibility(areaTerrain);
         } while (validCoordinatesAroundCheckCoordinate.isEmpty() && !restOfCheckedCoordinate.isEmpty());
         if (validCoordinatesAroundCheckCoordinate.isEmpty()) {

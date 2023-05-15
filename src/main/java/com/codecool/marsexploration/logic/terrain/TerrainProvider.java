@@ -4,7 +4,7 @@ import com.codecool.marsexploration.data.Area;
 import com.codecool.marsexploration.data.Constants;
 import com.codecool.marsexploration.data.Coordinate;
 import com.codecool.marsexploration.data.Planet;
-import com.codecool.marsexploration.logic.validator.CoordinateValidator;
+import com.codecool.marsexploration.logic.CoordinateCreator;
 import com.codecool.marsexploration.logic.resource.ResourcePlacer;
 import com.codecool.marsexploration.ui.Display;
 
@@ -15,13 +15,13 @@ import java.util.Set;
 public class TerrainProvider {
     private final Display display;
     private final Random random;
-    private final CoordinateValidator coordinateValidator;
+    private final CoordinateCreator coordinateCreator;
     private final ResourcePlacer resourcePlacer;
 
-    public TerrainProvider(Display display, Random random, CoordinateValidator coordinateValidator, ResourcePlacer resourcePlacer) {
+    public TerrainProvider(Display display, Random random, CoordinateCreator coordinateCreator, ResourcePlacer resourcePlacer) {
         this.display = display;
         this.random = random;
-        this.coordinateValidator = coordinateValidator;
+        this.coordinateCreator = coordinateCreator;
         this.resourcePlacer = resourcePlacer;
     }
 
@@ -30,7 +30,7 @@ public class TerrainProvider {
         initializeTerrainWithEmptySymbols(planetTerrains);
         for (int i = 0; i < planet.areas().size(); i++) {
             Area actualArea = planet.areas().get(i);
-            TerrainValidator terrainValidator = new TerrainValidator(display, random, coordinateValidator);
+            TerrainValidator terrainValidator = new TerrainValidator(display, random, coordinateCreator);
             Set<Coordinate> coordinates = terrainValidator.getAreaCoordinate(planetTerrains, actualArea);
             if (!coordinates.isEmpty()) {
                 for (Coordinate coordinate : coordinates) {

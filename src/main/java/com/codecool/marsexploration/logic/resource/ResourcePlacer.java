@@ -3,25 +3,24 @@ package com.codecool.marsexploration.logic.resource;
 import com.codecool.marsexploration.data.Constants;
 import com.codecool.marsexploration.data.Coordinate;
 import com.codecool.marsexploration.data.Planet;
-import com.codecool.marsexploration.logic.validator.CoordinateValidator;
+import com.codecool.marsexploration.logic.CoordinateCreator;
 
 import java.util.*;
 
 public class ResourcePlacer {
     private final Random random;
-    private final CoordinateValidator coordinateValidator;
+    private final CoordinateCreator coordinateCreator;
 
-    public ResourcePlacer(Random random, CoordinateValidator coordinateValidator) {
+    public ResourcePlacer(Random random, CoordinateCreator coordinateCreator) {
         this.random = random;
-        this.coordinateValidator = coordinateValidator;
+        this.coordinateCreator = coordinateCreator;
     }
 
     public String[][] placeInTerrain(String[][] planetTerrains, Planet planet) {
-        int maxPlanetLength = planetTerrains.length - 1;
         int actualEmpty = freeSpaces(planetTerrains);
         Map<String, Integer> mapOfAreaSymbolAndAmount = getMapOfAreasAndTotalSymbolsOnPlanet(planetTerrains, planet);
         Map<String, Integer> mapOfResourcesAndAmount = getMapOfResourcesAndAmount(planet, mapOfAreaSymbolAndAmount, actualEmpty);
-        placeAllResources(planet, planetTerrains, maxPlanetLength, mapOfResourcesAndAmount, mapOfAreaSymbolAndAmount);
+        placeAllResources(planet, planetTerrains, planetTerrains.length, mapOfResourcesAndAmount, mapOfAreaSymbolAndAmount);
         return planetTerrains;
     }
 
@@ -80,8 +79,7 @@ public class ResourcePlacer {
     private void findValidTerrainForResource(String[][] planetTerrains, int maxPlanetLength, String resourceSymbol, Coordinate checkCoordinate) {
         boolean isResourcePlaced = false;
         do {
-            Set<Coordinate> possibleCoordinates = new HashSet<>();
-            coordinateValidator.getPossibleCoordinatesAroundCheckCoordinate(possibleCoordinates, maxPlanetLength, checkCoordinate);
+            Set<Coordinate> possibleCoordinates = coordinateCreator.create(checkCoordinate, maxPlanetLength);
             for (Coordinate coordinate : possibleCoordinates) {
                 String actualTerrain = planetTerrains[coordinate.y()][coordinate.x()];
                 if (actualTerrain.equals(Constants.EMPTY_SYMBOL)) {
