@@ -31,8 +31,14 @@ public class PlanetTypeProvider {
     public Planet getPlanet() {
         display.printTitle("Create your planet");
         String name = input.getUserInput("Please enter the name of the planet.");
-        int xyLength = input.getNumericUserInput("Please enter length of the planet.");
-        List<Area> allAreas = areas.getAreas();
+        int minimumLength = 10;
+        int xyLength = 0;
+        while (xyLength < minimumLength) {
+            xyLength = input.getNumericUserInput("Please enter length of the planet.\n" +
+                    "It have to be a minimum length of " + minimumLength);
+        }
+        int totalTerrains = xyLength * xyLength;
+        List<Area> allAreas = areas.getAreas(totalTerrains);
         int amountAreas = 0;
         while (amountAreas < allAreas.size()) {
             amountAreas = input.getNumericUserInput("Please enter how many areas the planet have.\n" +

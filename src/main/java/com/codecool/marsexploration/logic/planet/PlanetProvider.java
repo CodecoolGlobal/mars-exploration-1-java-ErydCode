@@ -29,12 +29,13 @@ public class PlanetProvider {
         while (!containsIgnoreCase("no", wantCreateOwnNewPlanet)) {
             Planet createdPlanet = planetTypeProvider.getPlanet();
             String wantGenerateNewTerrainsForSamePlanet = "yes";
+            int counterImgName = 0;
             while (!containsIgnoreCase("no", wantGenerateNewTerrainsForSamePlanet)) {
-                int counterImgName = 0;
                 display.printTitle(createdPlanet.name());
                 String[][] PlanetTerrain = terrainProvider.getRandomGeneratedTerrainForPlanet(createdPlanet);
                 display.doppleArrayMap(PlanetTerrain, "Your Planet look");
                 display.printEndLines();
+                counterImgName++;
                 planetImageWriter.generateImage(createdPlanet, PlanetTerrain, counterImgName);
                 wantGenerateNewTerrainsForSamePlanet = input.getUserInput("Do you want to create a new map?\n" +
                         "Pleaser enter the command \"yes\"/\"y\" or \"no\"/\"n\".");

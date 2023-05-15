@@ -9,7 +9,13 @@ import java.util.Random;
 
 public class AreasTypeProvider {
 
-    public List<Area> getArea(String name, int amount, int minSize, int maxSize, String symbol, int[] rgb, Random random) {
+    private final Random random;
+
+    public AreasTypeProvider(Random random) {
+        this.random = random;
+    }
+
+    public List<Area> getArea(String name, int amount, int minSize, int maxSize, String symbol, int[] rgb) {
         List<Area> areas = new ArrayList<>();
         for (int i = 1; i <= amount; i++) {
             int randomNumber = random.nextInt(minSize, maxSize);

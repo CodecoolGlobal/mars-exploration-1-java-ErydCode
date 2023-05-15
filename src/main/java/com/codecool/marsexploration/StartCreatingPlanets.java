@@ -1,6 +1,7 @@
 package com.codecool.marsexploration;
 
 import com.codecool.marsexploration.io.PlanetImageWriter;
+import com.codecool.marsexploration.logic.validator.CoordinateValidator;
 import com.codecool.marsexploration.logic.area.AreasProvider;
 import com.codecool.marsexploration.logic.area.AreasTypeProvider;
 import com.codecool.marsexploration.logic.planet.PlanetProvider;
@@ -21,12 +22,13 @@ public class StartCreatingPlanets {
     private final Display display = new Display();
     private final Input input = new Input(display);
     private final Random random = new Random();
-    private final AreasTypeProvider areasTypeProvider = new AreasTypeProvider();
-    private final AreasProvider areas = new AreasProvider(display, input, random, areasTypeProvider);
+    private final AreasTypeProvider areasTypeProvider = new AreasTypeProvider(random);
+    private final AreasProvider areas = new AreasProvider(display, input, areasTypeProvider);
     private final ResourcesProvider resources = new ResourcesProvider();
     private final PlanetTypeProvider planetTypeProvider = new PlanetTypeProvider(display, input, random, areas, resources);
-    private final ResourcePlacer resourcePlacer = new ResourcePlacer(random, display);
-    private final TerrainProvider terrainProvider = new TerrainProvider(display, random, resourcePlacer);
+    private final CoordinateValidator coordinateValidator = new CoordinateValidator();
+    private final ResourcePlacer resourcePlacer = new ResourcePlacer(random, coordinateValidator);
+    private final TerrainProvider terrainProvider = new TerrainProvider(display, random, coordinateValidator, resourcePlacer);
     private final PlanetImageWriter planetImageWriter = new PlanetImageWriter();
     private final PlanetProvider planetProvider = new PlanetProvider(display, input, planetTypeProvider, terrainProvider, planetImageWriter);
     private final PlanetTemplateCodeCool planetTemplateCodeCool = new PlanetTemplateCodeCool(display, input, random, areasTypeProvider, terrainProvider, planetImageWriter);

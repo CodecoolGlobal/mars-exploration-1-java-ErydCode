@@ -45,7 +45,8 @@ public class PlanetImageWriter {
     }
 
     private String getFilePath(Planet planet, int counter) {
-        String folderName = counter == 0 ? planet.name() : planet.name() + counter;
+        //String folderName = counter == 0 ? planet.name() : planet.name() + counter;
+        String folderName = planet.name();
         String folderPath = "src/main/outputPlanets/" + folderName;
         File folder = new File(folderPath);
         folder.mkdirs();

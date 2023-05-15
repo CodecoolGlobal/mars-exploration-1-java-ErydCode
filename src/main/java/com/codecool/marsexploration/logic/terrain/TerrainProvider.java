@@ -4,6 +4,7 @@ import com.codecool.marsexploration.data.Area;
 import com.codecool.marsexploration.data.Constants;
 import com.codecool.marsexploration.data.Coordinate;
 import com.codecool.marsexploration.data.Planet;
+import com.codecool.marsexploration.logic.validator.CoordinateValidator;
 import com.codecool.marsexploration.logic.resource.ResourcePlacer;
 import com.codecool.marsexploration.ui.Display;
 
@@ -14,11 +15,13 @@ import java.util.Set;
 public class TerrainProvider {
     private final Display display;
     private final Random random;
+    private final CoordinateValidator coordinateValidator;
     private final ResourcePlacer resourcePlacer;
 
-    public TerrainProvider(Display display, Random random, ResourcePlacer resourcePlacer) {
+    public TerrainProvider(Display display, Random random, CoordinateValidator coordinateValidator, ResourcePlacer resourcePlacer) {
         this.display = display;
         this.random = random;
+        this.coordinateValidator = coordinateValidator;
         this.resourcePlacer = resourcePlacer;
     }
 
@@ -27,7 +30,7 @@ public class TerrainProvider {
         initializeTerrainWithEmptySymbols(planetTerrains);
         for (int i = 0; i < planet.areas().size(); i++) {
             Area actualArea = planet.areas().get(i);
-            TerrainValidator terrainValidator = new TerrainValidator(display, random);
+            TerrainValidator terrainValidator = new TerrainValidator(display, random, coordinateValidator);
             Set<Coordinate> coordinates = terrainValidator.getAreaCoordinate(planetTerrains, actualArea);
             if (!coordinates.isEmpty()) {
                 for (Coordinate coordinate : coordinates) {
@@ -37,8 +40,7 @@ public class TerrainProvider {
                 display.errorMessage("The planet does not have enough space for all areas, please reduce your number of areas");
             }
         }
-        return planetTerrains;
-        //return resourcePlacer.placeInTerrain(planetTerrains, planet);
+        return resourcePlacer.placeInTerrain(planetTerrains, planet);
     }
 
     private void initializeTerrainWithEmptySymbols(String[][] planetTerrains) {

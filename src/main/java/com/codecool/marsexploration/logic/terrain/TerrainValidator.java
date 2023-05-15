@@ -3,6 +3,7 @@ package com.codecool.marsexploration.logic.terrain;
 import com.codecool.marsexploration.data.Area;
 import com.codecool.marsexploration.data.Constants;
 import com.codecool.marsexploration.data.Coordinate;
+import com.codecool.marsexploration.logic.validator.CoordinateValidator;
 import com.codecool.marsexploration.ui.Display;
 
 import java.util.HashSet;
@@ -12,15 +13,17 @@ import java.util.Set;
 public class TerrainValidator {
     private final Display display;
     private final Random random;
+    private final CoordinateValidator coordinateValidator;
     private final Set<Coordinate> areaCoordinates = new HashSet<>();
     private final Set<Coordinate> possibleCoordinatesAroundCheckCoordinate = new HashSet<>();
     private final Set<Coordinate> validCoordinatesAroundCheckCoordinate = new HashSet<>();
     private Coordinate checkCoordinate;
     private boolean isPossibleToProvideArea = true;
 
-    public TerrainValidator(Display display, Random random) {
+    public TerrainValidator(Display display, Random random, CoordinateValidator coordinateValidator) {
         this.display = display;
         this.random = random;
+        this.coordinateValidator = coordinateValidator;
     }
 
     public Set<Coordinate> getAreaCoordinate(String[][] planetTerrains, Area area) {
@@ -71,7 +74,7 @@ public class TerrainValidator {
             checkCoordinate = new Coordinate(randomCoordinateToValidate.y(), randomCoordinateToValidate.x());
             checkedCoordinates.add(checkCoordinate);
             restOfCheckedCoordinate.removeAll(checkedCoordinates);
-            getPossibleCoordinatesAroundCheckCoordinate(maxPlanetLength, checkCoordinate);
+            coordinateValidator.getPossibleCoordinatesAroundCheckCoordinate(possibleCoordinatesAroundCheckCoordinate, maxPlanetLength, checkCoordinate);
             getValidCoordinatesFromPossibility(areaTerrain);
         } while (validCoordinatesAroundCheckCoordinate.isEmpty() && !restOfCheckedCoordinate.isEmpty());
         if (validCoordinatesAroundCheckCoordinate.isEmpty()) {
@@ -88,135 +91,6 @@ public class TerrainValidator {
             }
         }
         validCoordinatesAroundCheckCoordinate.removeAll(areaCoordinates);
-    }
-
-    private void getPossibleCoordinatesAroundCheckCoordinate(int maxPlanetLength, Coordinate proofCoordinate) {
-        fromAllTerrainsExceptEdges(maxPlanetLength, proofCoordinate);
-        fromLeftUpCorner(maxPlanetLength, proofCoordinate);
-        fromFirstEdge(maxPlanetLength, proofCoordinate);
-        fromRightUpCorner(maxPlanetLength, proofCoordinate);
-        fromRightEdge(maxPlanetLength, proofCoordinate);
-        fromLeftDownCorner(maxPlanetLength, proofCoordinate);
-        fromBottomEdge(maxPlanetLength, proofCoordinate);
-        fromRightDownCorner(maxPlanetLength, proofCoordinate);
-        fromLeftEdge(maxPlanetLength, proofCoordinate);
-    }
-
-    private void fromAllTerrainsExceptEdges(int maxPlanetLength, Coordinate proof) {
-        if (proof.y() > 0 && proof.y() < maxPlanetLength && proof.x() > 0 && proof.x() < maxPlanetLength) {
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() - 1, proof.x()));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() - 1, proof.x() - 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() - 1, proof.x() + 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() + 1, proof.x()));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() + 1, proof.x() - 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() + 1, proof.x() + 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y(), proof.x() - 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y(), proof.x() + 1));
-        }
-    }
-
-    private void fromLeftUpCorner(int maxPlanetLength, Coordinate proof) {
-        if (proof.y() == 0 && proof.x() == 0) {
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(1, 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(1, 0));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, maxPlanetLength));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(1, maxPlanetLength));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, 0));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, maxPlanetLength));
-        }
-    }
-
-    private void fromFirstEdge(int maxPlanetLength, Coordinate proof) {
-        if (proof.y() == 0) {
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, proof.x() - 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, proof.x() + 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(1, proof.x() - 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(1, proof.x()));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(1, proof.x() + 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, proof.x() - 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, proof.x()));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, proof.x() + 1));
-        }
-    }
-
-    private void fromRightUpCorner(int maxPlanetLength, Coordinate proof) {
-        if (proof.y() == 0 && proof.x() == maxPlanetLength) {
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, maxPlanetLength - 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, 0));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(1, maxPlanetLength - 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(1, maxPlanetLength));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(1, 0));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, maxPlanetLength));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, maxPlanetLength - 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, 0));
-        }
-    }
-
-    private void fromRightEdge(int maxPlanetLength, Coordinate proof) {
-        if (proof.x() == maxPlanetLength) {
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y(), 0));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() - 1, 0));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() + 1, 0));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y(), maxPlanetLength - 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() - 1, maxPlanetLength - 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() + 1, maxPlanetLength - 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() - 1, maxPlanetLength));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() + 1, maxPlanetLength));
-        }
-    }
-
-    private void fromRightDownCorner(int maxPlanetLength, Coordinate proof) {
-        if (proof.y() == maxPlanetLength && proof.x() == maxPlanetLength) {
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, maxPlanetLength - 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, maxPlanetLength + 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength - 1, maxPlanetLength));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength - 1, maxPlanetLength - 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength - 1, maxPlanetLength + 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, maxPlanetLength));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, maxPlanetLength - 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, 0));
-        }
-    }
-
-    private void fromBottomEdge(int maxPlanetLength, Coordinate proof) {
-        if (proof.y() == maxPlanetLength) {
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, proof.x() - 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, proof.x() + 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength - 1, proof.x() - 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength - 1, proof.x()));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength - 1, proof.x() + 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, proof.x() - 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, proof.x()));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, proof.x() + 1));
-        }
-    }
-
-    private void fromLeftDownCorner(int maxPlanetLength, Coordinate proof) {
-        if (proof.y() == maxPlanetLength && proof.x() == 0) {
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, maxPlanetLength));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength, 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength - 1, 0));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength - 1, 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(maxPlanetLength - 1, maxPlanetLength));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, 0));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(0, maxPlanetLength));
-        }
-    }
-
-    private void fromLeftEdge(int maxPlanetLength, Coordinate proof) {
-        if (proof.x() == 0) {
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() - 1, 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y(), 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() + 1, 1));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() - 1, 0));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() + 1, 0));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() - 1, maxPlanetLength));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y(), maxPlanetLength));
-            possibleCoordinatesAroundCheckCoordinate.add(new Coordinate(proof.y() + 1, maxPlanetLength));
-        }
     }
 
     private void clearAllMapsUsedToValidate() {
