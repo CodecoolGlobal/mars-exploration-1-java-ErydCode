@@ -42,7 +42,7 @@ public class PlanetTypeProvider {
         int amountAreas = 0;
         while (amountAreas < allAreas.size()) {
             amountAreas = input.getNumericUserInput("Please enter how many areas the planet have.\n" +
-                    "It must be higher than " + allAreas.size());
+                    "It must be higher than " + (allAreas.size() - 1));
         }
         List<Area> wishedAmountOfArea = new ArrayList<>(allAreas);
         while (wishedAmountOfArea.size() < amountAreas) {
