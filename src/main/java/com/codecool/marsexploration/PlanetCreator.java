@@ -10,7 +10,6 @@ import com.codecool.marsexploration.logic.planet.templates.PlanetTemplateCodeCoo
 import com.codecool.marsexploration.logic.resource.ResourcePlacer;
 import com.codecool.marsexploration.logic.resource.ResourcesProvider;
 import com.codecool.marsexploration.logic.terrain.TerrainProvider;
-import com.codecool.marsexploration.logic.validator.CoordinateValidator;
 import com.codecool.marsexploration.ui.Display;
 import com.codecool.marsexploration.ui.Input;
 import com.codecool.marsexploration.ui.choice.UserChoice;
@@ -18,7 +17,6 @@ import com.codecool.marsexploration.ui.choice.UserChoice;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
@@ -31,7 +29,6 @@ public class PlanetCreator {
     private final AreasTypeProvider areasTypeProvider = new AreasTypeProvider(random);
     private final AreasProvider areas = new AreasProvider(display, input, areasTypeProvider);
     private final ResourcesProvider resources = new ResourcesProvider();
-//    private final CoordinateValidator coordinateValidator = new CoordinateValidator();
     private final CoordinateCreator coordinateCreator = new CoordinateCreator();
     private final ResourcePlacer resourcePlacer = new ResourcePlacer(random, coordinateCreator);
     private final TerrainProvider terrainProvider = new TerrainProvider(display, random, coordinateCreator, resourcePlacer);
@@ -41,7 +38,7 @@ public class PlanetCreator {
     private final PlanetTemplateCodeCool planetTemplateCodeCool = new PlanetTemplateCodeCool(display, input, random, areasTypeProvider, terrainProvider, planetImageWriter);
     private final List<UserChoice> userChoices = List.of(
             new UserChoice(1, "Create your own planet", planetProvider::userCustomized),
-            new UserChoice(2, "Utiliza una plantilla", planetTemplateCodeCool::getTemplate)
+            new UserChoice(2, "Use a planet template", planetTemplateCodeCool::getTemplate)
     );
 
     public void createPlanets() {
@@ -64,7 +61,7 @@ public class PlanetCreator {
     }
 
     private Optional<UserChoice> getUserChoice() {
-        display.printSubtitle("Enter your choice: ");
+        display.message("Enter your choice:");
         String message = userChoices.stream()
                 .map(choice -> choice.number() + ". - " + choice.description() + "\n")
                 .collect(Collectors.joining());
