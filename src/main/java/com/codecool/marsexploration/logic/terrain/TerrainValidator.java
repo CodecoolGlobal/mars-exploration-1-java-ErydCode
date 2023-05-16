@@ -27,9 +27,9 @@ public class TerrainValidator {
     }
 
     public Set<Coordinate> getAreaCoordinate(String[][] planetTerrains, Area area) {
-        int maxPlanetLength = planetTerrains.length - 1;
+        int maxPlanetLength = planetTerrains.length;
         getValidStartCoordinate(planetTerrains, maxPlanetLength, area);
-        addValidCoordinateToAreaCoordinates(planetTerrains, area, planetTerrains.length);
+        addValidCoordinateToAreaCoordinates(planetTerrains, area, maxPlanetLength);
         return areaCoordinates;
     }
 
